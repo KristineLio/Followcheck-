@@ -6,6 +6,9 @@ export type Snapshot = {
   importedAt: string
   sourceName: string
   format?: 'HTML' | 'JSON'
+  sourceFiles?: Array<{ name: string; kind: 'followers' | 'following'; parsed: number }>
+  checkedFollowerCount?: number
+  archiveIdentity?: string
   followers: string[]
   following: string[]
 }
@@ -125,6 +128,7 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
 
   const followers = new Set<string>()
   const following = new Set<string>()
+  const sourceFiles: NonNullable<Snapshot['sourceFiles']> = []
 
   for (const { entry, match } of identified) {
     if (match.format !== format) continue
@@ -159,6 +163,7 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
       names = extractHtmlUsernames(raw)
     }
 
+    sourceFiles.push({ name: entry.name.split('/').pop() ?? entry.name, kind: match.kind, parsed: names.length })
     for (const user of names) {
       if (match.kind === 'followers') followers.add(user)
       else following.add(user)
@@ -170,6 +175,8 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
     importedAt: new Date().toISOString(),
     sourceName: file.name,
     format,
+    sourceFiles,
+    archiveIdentity: [file.name, file.size, file.lastModified].join(':'),
     followers: [...followers].sort(),
     following: [...following].sort(),
   }

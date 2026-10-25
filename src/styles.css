@@ -154,3 +154,30 @@ footer{display:flex;justify-content:space-between;border-top:1px solid #ede7ee;p
   .account-row{min-height:69px}
   .profile-link{font-size:10px}
 }
+
+/* Evidence-based import validation before potentially misleading follow comparisons. */
+.count-check{margin:5px 0 22px;background:#fffdfd;border:1px solid #e9ddec}
+.count-check.mismatch{border-color:#df9aa9;background:#fff7f8}
+.count-check-heading{display:flex;gap:12px;align-items:flex-start}
+.count-check-heading>svg{flex:none;color:#a478c0;margin-top:3px}
+.count-check-heading h2{font-size:18px;margin:0 0 7px;letter-spacing:-.4px}
+.count-check-heading p{font-size:12px;color:#756c7a;line-height:1.7;margin:0 0 15px}
+.count-check-form{display:grid;gap:8px}
+.count-check-form label{font-size:12px;font-weight:700;color:#665a70}
+.count-check-controls{display:flex;gap:9px;align-items:stretch}
+.count-check-controls input{min-height:43px;min-width:0;max-width:260px;flex:1;border:1px solid #e6deea;border-radius:11px;padding:9px 12px;font-size:14px}
+.count-check-controls .secondary-button{white-space:nowrap;justify-content:center}
+.count-error{padding:12px 14px;margin-top:13px;border-radius:9px;background:#fce7e9;color:#9f4155;font-size:12px;line-height:1.65}
+.count-success{font-size:12px;color:#387f69;margin:12px 0 0}
+.import-details{padding-top:11px;margin-top:13px;border-top:1px solid #f0eaf1;color:#8a7e8f;font-size:12px}
+.import-details summary{cursor:pointer;font-weight:700;color:#7c6b87}
+.import-details ul{padding-left:20px;line-height:1.8;word-break:break-word}
+.import-details p{font-size:11px;line-height:1.7}
+.unverified-hint{padding:12px;border-radius:10px;background:#fff4e8;color:#8b5c30;font-size:12px;line-height:1.5}
+@media(max-width:760px){
+ .count-check{padding:18px;margin:6px 0 14px}
+ .count-check-heading h2{font-size:16px}
+ .count-check-controls{flex-direction:column}
+ .count-check-controls input{max-width:none;width:100%}
+ .count-check-controls button{width:100%}
+}

@@ -62,6 +62,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
   const [filter, setFilter] = useState<Filter>('notFollowingBack')
   const [search, setSearch] = useState('')
+  const [expectedFollowersInput, setExpectedFollowersInput] = useState('')
 
   useEffect(() => {
     getSnapshots().then(setSnapshots).catch(() => setError('Local storage is unavailable. Try enabling browser storage and reload.')).finally(() => setLoading(false))
@@ -70,6 +71,31 @@ export default function App() {
   const current = snapshots[0]
   const previous = snapshots[1]
   const insights = useMemo(() => current ? analyze(current, previous) : null, [current, previous])
+  const hasCountCheck = current?.checkedFollowerCount !== undefined
+  const countMismatch = hasCountCheck && current?.checkedFollowerCount !== current?.followers.length
+  const countMatched = hasCountCheck && !countMismatch
+  const historyComparable = Boolean(countMatched && previous?.checkedFollowerCount !== undefined &&
+    previous.checkedFollowerCount === previous.followers.length)
+
+  useEffect(() => {
+    setExpectedFollowersInput(current?.checkedFollowerCount === undefined ? '' : String(current.checkedFollowerCount))
+  }, [current?.id])
+
+  async function verifyFollowerCount() {
+    if (!current) return
+    const raw = expectedFollowersInput.trim()
+    if (!/^\d+$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+      setError('Enter your Instagram follower count as a whole number.')
+      return
+    }
+    try {
+      await addSnapshot({ ...current, checkedFollowerCount: Number(raw) })
+      setSnapshots(await getSnapshots())
+      setError('')
+    } catch {
+      setError('Could not save the count check on this device.')
+    }
+  }
 
   async function handleUpload(file?: File) {
     if (!file) return
@@ -77,6 +103,12 @@ export default function App() {
     setError('')
     try {
       const next = await parseInstagramZip(file)
+      const prior = snapshots.find((item) => item.archiveIdentity && item.archiveIdentity === next.archiveIdentity)
+      if (prior) {
+        next.id = prior.id
+        next.importedAt = prior.importedAt
+        next.checkedFollowerCount = prior.checkedFollowerCount
+      }
       await addSnapshot(next)
       setSnapshots(await getSnapshots())
       setTab('overview')
@@ -147,31 +179,48 @@ export default function App() {
           <div className="snapshot-pill"><span className="status-dot"/> Last imported {dateLabel(current.importedAt)} <span className="pill-divider">·</span> {snapshots.length} saved snapshot{snapshots.length === 1 ? '' : 's'}</div>
 
           {tab === 'overview' && insights && <>
+            <section className={'count-check card' + (countMismatch ? ' mismatch' : '')} aria-labelledby="count-check-heading">
+              <div className="count-check-heading"><Icon name="info" size={21}/><div>
+                <h2 id="count-check-heading">{countMismatch ? 'Follower total does not match Instagram' : countMatched ? 'Follower total checked' : 'Check the export before trusting these numbers'}</h2>
+                <p>FollowCheck extracted <strong>{current.followers.length.toLocaleString()} followers</strong>. Compare that number with Instagram's follower total. Incomplete exports make mutual and non-follow-back results wrong.</p>
+              </div></div>
+              <form className="count-check-form" onSubmit={(event) => { event.preventDefault(); void verifyFollowerCount() }}>
+                <label htmlFor="expected-followers">Followers shown on Instagram</label>
+                <div className="count-check-controls"><input id="expected-followers" type="number" min="0" step="1" inputMode="numeric" value={expectedFollowersInput} onChange={(event) => setExpectedFollowersInput(event.target.value)} placeholder="e.g. 850" /><button className="secondary-button" type="submit">Compare counts</button></div>
+              </form>
+              {countMismatch && <div className="count-error" role="alert"><strong>These comparisons are hidden because the totals disagree.</strong> Instagram shows {current.checkedFollowerCount?.toLocaleString()} followers; the ZIP gave {current.followers.length.toLocaleString()}. Check the account and All time selection, then request a fresh export if needed.</div>}
+              {countMatched && <p className="count-success">✓ The totals match what you entered. This doesn't guarantee that every username is correct.</p>}
+              <details className="import-details"><summary>See which export files were read</summary>
+                {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((entry, i) => <li key={i}><code>{entry.name}</code>: {entry.parsed.toLocaleString()} usernames</li>)}</ul> : <p>This import predates file diagnostics. Re-upload the original ZIP to inspect its files.</p>}
+                <p>Format: {current.format || 'Unknown'}. Data stays on your device.</p>
+              </details>
+            </section>
             <div className="metrics-grid">
               <Metric title="Your followers" value={current.followers.length.toLocaleString()} tone="dark" footer="Accounts following you"/>
               <Metric title="You're following" value={current.following.length.toLocaleString()} tone="dark" footer="Accounts you follow"/>
-              <Metric title="Don't follow back" value={insights.notFollowingBack.length.toLocaleString()} tone="pink-text" footer="You follow them"/>
-              <Metric title="Mutual connections" value={insights.mutual.length.toLocaleString()} tone="purple-text" footer="You follow each other"/>
+              <Metric title="Don't follow back" value={countMismatch ? '—' : insights.notFollowingBack.length.toLocaleString()} tone="pink-text" footer={countMismatch ? 'Needs a complete export' : 'According to the export'}/>
+              <Metric title="Mutual connections" value={countMismatch ? '—' : insights.mutual.length.toLocaleString()} tone="purple-text" footer={countMismatch ? 'Needs a complete export' : 'According to the export'}/>
             </div>
-            <section className="highlight card">
+            {countMismatch ? <section className="highlight card"><div><h2>Comparison paused</h2><p>Your follower total differs from Instagram, so we won't suggest people to unfollow yet.</p><button className="secondary-button" onClick={chooseFile} disabled={busy}><Icon name="upload" size={17}/> Re-import ZIP</button></div></section> : <section className="highlight card">
               <div className="highlight-icon"><Icon name="people" size={24}/></div>
               <div><span className="eyebrow">ACCOUNT INSIGHTS</span><h2>{insights.notFollowingBack.length} don't follow you back</h2><p>See exactly which accounts you follow that aren't in your followers list.</p><button className="text-link as-button" onClick={() => { setFilter('notFollowingBack'); setTab('accounts') }}>Explore accounts <Icon name="arrow" size={17}/></button></div>
-            </section>
+            </section>}
             <section className="changes card">
               <div className="section-heading"><div><span className="eyebrow">GROWTH TRACKING</span><h2>Since your last import</h2></div><Icon name="chart" size={22}/></div>
-              {previous ? <>
+              {historyComparable ? <>
                 <div className="change-row"><span>New in followers list</span><strong className="positive">+{insights.gained.length}</strong></div>
                 <div className="change-row"><span>Missing from followers list</span><strong className="negative">−{insights.lost.length}</strong></div>
                 <p className="small-note">Changes between imported lists aren't proof someone deliberately unfollowed you. Accounts may also be deactivated or renamed.</p>
-              </> : <div className="no-history"><Icon name="clock" size={22}/><p>Import another Instagram export later to start comparing follower changes over time.</p></div>}
+              </> : <div className="no-history"><Icon name="clock" size={22}/><p>Growth comparison needs two different exports from the same account, each with checked follower totals.</p></div>}
             </section>
           </>}
 
-          {tab === 'accounts' && insights && <section className="accounts-page card">
+          {tab === 'accounts' && insights && (countMismatch ? <section className="accounts-page card"><h2>Account comparison hidden</h2><p>The export total differs from Instagram, so this account list may be inaccurate.</p><button className="secondary-button" onClick={() => setTab('overview')}>Check my import</button></section> : <section className="accounts-page card">
             <div className="section-heading"><div><span className="eyebrow">YOUR CONNECTIONS</span><h2>Explore accounts</h2></div></div>
             <div className="filter-tabs" role="group" aria-label="Filter accounts">{filters.map((item) => <button key={item.key} className={filter === item.key ? 'active' : ''} onClick={() => { setFilter(item.key); setSearch('') }}>{item.label} <span>{insights[item.key].length}</span></button>)}</div>
+            {!hasCountCheck && <p className="unverified-hint">Unverified export — compare the follower total on Instagram before making changes.</p>}
             <AccountList users={insights[filter]} search={search} onSearch={setSearch}/>
-          </section>}
+          </section>)}
 
           {tab === 'history' && insights && <section className="history-page card">
             <div className="section-heading"><div><span className="eyebrow">LOCAL HISTORY</span><h2>Your saved snapshots</h2></div><Icon name="clock" size={23}/></div>

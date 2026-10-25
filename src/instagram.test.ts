@@ -16,6 +16,8 @@ function fixture(followers: string[], following: string[]): Promise<File> {
 describe('Instagram ZIP parsing', () => {
   it('handles followers arrays, following wrappers, and duplicates', async () => {
     const snap = await parseInstagramZip(await fixture(['Alice', 'BOB', 'alice'], ['Bob', 'Charlie']))
+    expect(snap.sourceFiles).toEqual([{ name: 'followers_1.json', kind: 'followers', parsed: 3 }, { name: 'following.json', kind: 'following', parsed: 2 }])
+    expect(snap.archiveIdentity).toContain('instagram.zip:')
     expect(snap.followers).toEqual(['alice', 'bob'])
     expect(snap.following).toEqual(['bob', 'charlie'])
     expect(analyze(snap).notFollowingBack).toEqual(['charlie'])
@@ -62,6 +64,7 @@ describe('Default HTML Instagram ZIP exports', () => {
     zip.file('instagram/connections/followers_and_following/pending_follow_requests.html', makeHtml(['ignore_me']))
     const blob = await zip.generateAsync({ type: 'blob' })
     const snapshot = await parseInstagramZip(new File([blob], 'instagram-export.zip'))
+    expect(snapshot.sourceFiles?.filter((entry) => entry.kind === 'followers')).toHaveLength(2)
     expect(snapshot.format).toBe('HTML')
     expect(snapshot.followers).toEqual(['alicia', 'bobby', 'dora'])
     expect(snapshot.following).toEqual(['bobby', 'charlie'])
