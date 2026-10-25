@@ -1,2 +1,38 @@
-# Followcheck-
-Privacy-first Instagram follower tracking and growth analytics. Compare followers, detect unfollowers, and track account growth—no login required.
+# FollowCheck Personal
+
+A **mobile-first, privacy-first Instagram follower comparison app** built with React and TypeScript. Upload the original Instagram ZIP export and see non-mutual follows; compare snapshots to see list changes over time.
+
+## Privacy and accuracy
+
+- No Instagram password, scraping, login automation, or access tokens.
+- Data is parsed **locally in the browser** using JSZip. This app does not send your ZIP or follower lists to a backend.
+- Snapshots are saved only on your device in IndexedDB. Deleting browser/site data deletes them.
+- The initial import shows **not following back**, **you don't follow back**, and **mutual**. At least two imports from the *same account* are needed for history.
+- A follower missing from a later export is **not proof of an unfollow**: name changes, suspension, blocking, or deactivation may affect lists.
+- Imports show the list state from the export, not live Instagram activity.
+- Only Instagram **JSON ZIP** exports are supported in V1.
+
+## Local development
+
+Requires Node.js 20.19+.
+
+```bash
+npm install
+npm run dev
+npm test
+npm run build
+```
+
+Open the Vite local URL in a browser. For mobile testing, run Vite with `--host` on your trusted local network or deploy to static hosting with HTTPS.
+
+## Import instructions
+
+In Instagram Accounts Center, choose **Your information and permissions → Export your information** (wording may change). Request **Followers and following**, **All time**, **JSON**, and **Download to device**. Once the ZIP is ready, open FollowCheck and select the original ZIP from Files/Downloads. Do not unpack it manually.
+
+## Scope
+
+V1: responsive dashboard, ZIP parser, follower comparison, local snapshot storage/history, username search, direct Instagram profile links, clear-history control, basic tests.
+
+Next: test multiple real-world export variants, dedicated account separation, installable offline PWA, exportable reports, and accessibility/device QA.
+
+**Not affiliated with Instagram or Meta.**
