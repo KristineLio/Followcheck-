@@ -13,7 +13,8 @@
     "idb": "^8.0.3",
     "jszip": "^3.10.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "htmlparser2": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.18.6",

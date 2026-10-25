@@ -1,9 +1,11 @@
 import JSZip from 'jszip'
+import { DomUtils, parseDocument } from 'htmlparser2'
 
 export type Snapshot = {
   id: string
   importedAt: string
   sourceName: string
+  format?: 'HTML' | 'JSON'
   followers: string[]
   following: string[]
 }
@@ -17,7 +19,7 @@ export type FollowerAnalysis = {
 }
 
 const MAX_ARCHIVE_BYTES = 75 * 1024 * 1024
-const MAX_JSON_BYTES = 40 * 1024 * 1024
+const MAX_RELATIONSHIP_BYTES = 40 * 1024 * 1024
 
 function username(input: unknown): string | null {
   if (typeof input !== 'string') return null
@@ -52,16 +54,47 @@ export function extractUsernames(data: unknown): string[] {
   return [...values].sort((a, b) => a.localeCompare(b))
 }
 
-function relationshipFile(path: string): 'followers' | 'following' | null {
+// Parse untrusted export HTML as data only: never render markup or request its resources.
+export function extractHtmlUsernames(html: string): string[] {
+  const document = parseDocument(html)
+  const links = DomUtils.getElementsByTagName('a', document.children)
+  const values = new Set<string>()
+
+  for (const link of links) {
+    const href = link.attribs.href
+    if (!href) continue
+    try {
+      const url = new URL(href)
+      if (url.protocol !== 'https:' || !['www.instagram.com', 'instagram.com'].includes(url.hostname)) continue
+      const parts = url.pathname.split('/').filter(Boolean)
+      let candidate: string | undefined
+      if (parts.length === 1) candidate = parts[0]
+      if (parts.length === 2 && parts[0] === '_u') candidate = parts[1]
+      const excluded = new Set(['accounts', 'explore', 'reel', 'reels', 'stories', 'p', 'direct', 'about', 'legal', 'privacy', 'terms', 'developer'])
+      if (!candidate || excluded.has(candidate.toLowerCase())) continue
+      const name = username(decodeURIComponent(candidate))
+      if (name) values.add(name)
+    } catch {
+      // Ignore malformed or non-Instagram links.
+    }
+  }
+
+  return [...values].sort((a, b) => a.localeCompare(b))
+}
+
+type RelationshipKind = 'followers' | 'following'
+type ExportFormat = 'HTML' | 'JSON'
+
+function relationshipFile(path: string): { kind: RelationshipKind; format: ExportFormat } | null {
   const basename = path.split('/').pop()?.toLowerCase() ?? ''
-  if (/^followers(?:_\d+)?\.json$/.test(basename)) return 'followers'
-  if (/^following(?:_\d+)?\.json$/.test(basename)) return 'following'
-  return null
+  const match = basename.match(/^(followers|following)(?:_\d+)?\.(html|json)$/)
+  if (!match) return null
+  return { kind: match[1] as RelationshipKind, format: match[2] === 'html' ? 'HTML' : 'JSON' }
 }
 
 export async function parseInstagramZip(file: File): Promise<Snapshot> {
   if (!/\.zip$/i.test(file.name)) {
-    throw new Error('Choose the original ZIP export from Instagram. Select JSON when requesting your data.')
+    throw new Error('Choose the original Instagram ZIP export, not an individual HTML or JSON file.')
   }
   if (file.size > MAX_ARCHIVE_BYTES) {
     throw new Error('This ZIP is too large for phone processing (75 MB maximum). Export only Followers and Following.')
@@ -77,14 +110,30 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
   const entries = Object.values(zip.files).filter((entry) => !entry.dir && !entry.name.startsWith('__MACOSX/'))
   if (entries.length > 2000) throw new Error('This ZIP contains too many files. Export only Followers and Following.')
 
+  const identified = entries.map((entry) => ({ entry, match: relationshipFile(entry.name) }))
+    .filter((item): item is { entry: JSZip.JSZipObject; match: { kind: RelationshipKind; format: ExportFormat } } => Boolean(item.match))
+  const hasBoth = (format: ExportFormat) =>
+    identified.some((item) => item.match.format === format && item.match.kind === 'followers') &&
+    identified.some((item) => item.match.format === format && item.match.kind === 'following')
+
+  // Prefer JSON if a ZIP happens to contain two complete representations;
+  // don't combine mismatched snapshots from separate formats.
+  const format: ExportFormat | null = hasBoth('JSON') ? 'JSON' : hasBoth('HTML') ? 'HTML' : null
+  if (!format) {
+    throw new Error('Could not find a complete Followers and Following export. In Instagram, select Followers and following, All time, and HTML or JSON, then download the original ZIP.')
+  }
+
   const followers = new Set<string>()
   const following = new Set<string>()
-  let foundFollowers = false
-  let foundFollowing = false
 
-  for (const entry of entries) {
-    const kind = relationshipFile(entry.name)
-    if (!kind) continue
+  for (const { entry, match } of identified) {
+    if (match.format !== format) continue
+
+    // JSZip metadata lets us reject unusually large decompression before loading it.
+    const uncompressedSize = (entry as unknown as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize
+    if (typeof uncompressedSize === 'number' && uncompressedSize > MAX_RELATIONSHIP_BYTES) {
+      throw new Error('A relationship file is too large to process safely on this phone.')
+    }
 
     let raw: string
     try {
@@ -92,33 +141,35 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
     } catch {
       throw new Error('Could not read ' + entry.name + ' from the ZIP.')
     }
-    if (raw.length > MAX_JSON_BYTES) {
-      throw new Error('A relationship file is too large to analyze safely on this phone.')
+    if (raw.length > MAX_RELATIONSHIP_BYTES) {
+      throw new Error('A relationship file is too large to process safely on this phone.')
     }
 
-    let data: unknown
-    try {
-      data = JSON.parse(raw)
-    } catch {
-      throw new Error(entry.name + ' is not valid JSON. Request a new Instagram export.')
+    let names: string[]
+    if (format === 'JSON') {
+      try {
+        names = extractUsernames(JSON.parse(raw) as unknown)
+      } catch {
+        throw new Error(entry.name + ' is not valid JSON. Request a fresh Instagram export.')
+      }
+    } else {
+      if (!/<html[\s>]/i.test(raw)) {
+        throw new Error(entry.name + ' does not look like an Instagram HTML export.')
+      }
+      names = extractHtmlUsernames(raw)
     }
 
-    if (kind === 'followers') foundFollowers = true
-    if (kind === 'following') foundFollowing = true
-    for (const user of extractUsernames(data)) {
-      if (kind === 'followers') followers.add(user)
+    for (const user of names) {
+      if (match.kind === 'followers') followers.add(user)
       else following.add(user)
     }
-  }
-
-  if (!foundFollowers || !foundFollowing) {
-    throw new Error('Missing followers or following JSON. In Instagram export settings, choose Followers and Following, All time, and JSON.')
   }
 
   return {
     id: crypto.randomUUID(),
     importedAt: new Date().toISOString(),
     sourceName: file.name,
+    format,
     followers: [...followers].sort(),
     following: [...following].sort(),
   }

@@ -111,27 +111,30 @@ export default function App() {
         {error && <div className="error" role="alert"><Icon name="info" size={20}/><span>{error}</span><button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}
 
         {loading ? <div className="loading">Loading your private workspace…</div> : !current ? <>
-          <section className="welcome">
+          <section className="guide card guide-first" aria-labelledby="start-title">
+            <span className="eyebrow">FIRST TIME HERE? START WITH THESE STEPS</span>
+            <h1 className="guide-title" id="start-title">Find your followers in 3 steps<span className="period">.</span></h1>
+            <p className="guide-subtitle">No Instagram password needed. We'll guide you through the export, then analyze it privately on your phone.</p>
+            <div className="steps">
+              <div><span>01</span><p><strong>Get your Instagram data</strong><br/>In Accounts Center, open Your information and permissions → Export your information.<br/><a className="inline-step-link" href="https://accountscenter.instagram.com/" target="_blank" rel="noopener noreferrer">Open Instagram Accounts Center <Icon name="arrow" size={15}/></a></p></div>
+              <div><span>02</span><p><strong>Choose followers and following</strong><br/>Select Followers and following, then All time. <b>Keep HTML selected</b> (the default) or choose JSON — both are supported.</p></div>
+              <div><span>03</span><p><strong>Upload your ZIP file</strong><br/>When Instagram makes your export available, save the ZIP to Files or Downloads and upload it below. Don't extract it.</p></div>
+            </div>
+            <div className="guide-actions">
+              <button className="primary-button" disabled={busy} onClick={chooseFile}><Icon name="upload" size={19}/>{busy ? 'Analyzing your ZIP…' : 'Upload Instagram ZIP'}<Icon name="arrow" size={19}/></button>
+              <div className="under-button"><Icon name="shield" size={14}/> Your files stay on this device.</div>
+            </div>
+          </section>
+          <section className="welcome welcome-secondary">
             <div className="eyebrow"><span className="spark-icon"><Icon name="spark" size={14}/></span> YOUR INSTAGRAM, MADE CLEAR</div>
-            <h1>Know your circle<span className="period">.</span></h1>
-            <p>Find who doesn't follow you back, see mutual connections, and track your follower changes. All without sharing your password.</p>
-            <button className="primary-button" disabled={busy} onClick={chooseFile}><Icon name="upload" size={19}/>{busy ? 'Analyzing your ZIP…' : 'Upload Instagram ZIP'}<Icon name="arrow" size={19}/></button>
-            <div className="under-button"><Icon name="shield" size={14}/> Processed on your device. Never uploaded to us.</div>
+            <h2>Know your circle<span className="period">.</span></h2>
+            <p>Find accounts that don't follow you back, discover mutual connections, and compare your followers over time.</p>
           </section>
           <div className="feature-row">
             <div className="feature"><span className="feature-icon pink"><Icon name="people"/></span><h3>See your connections</h3><p>Followers, mutuals, and one-way follows in one place.</p></div>
             <div className="feature"><span className="feature-icon lilac"><Icon name="chart"/></span><h3>Track your growth</h3><p>Compare exports to spot followers added or missing.</p></div>
             <div className="feature"><span className="feature-icon mint"><Icon name="shield"/></span><h3>Stay private</h3><p>No Instagram login, no server, and no tracking.</p></div>
           </div>
-          <section className="guide card">
-            <div className="section-heading"><div><span className="eyebrow">GET STARTED</span><h2>Three simple steps</h2></div><span className="guide-time">A few taps</span></div>
-            <div className="steps">
-              <div><span>01</span><p><strong>Get your Instagram data</strong><br/>Open Instagram Accounts Center → Your information and permissions → Export your information.</p></div>
-              <div><span>02</span><p><strong>Choose the right options</strong><br/>Select Followers and following, All time, and JSON. Download the ZIP when Instagram prepares it.</p></div>
-              <div><span>03</span><p><strong>Upload and explore</strong><br/>Select the original ZIP right here. No manual extraction needed.</p></div>
-            </div>
-            <a className="text-link" href="https://accountscenter.instagram.com/" target="_blank" rel="noopener noreferrer">Open Instagram Accounts Center <Icon name="arrow" size={16}/></a>
-          </section>
         </> : <>
           <section className="dashboard-header">
             <div><div className="eyebrow">YOUR PRIVATE DASHBOARD</div><h1>Your circle, <span>at a glance.</span></h1><p>Based on your most recently uploaded Instagram data.</p></div>
