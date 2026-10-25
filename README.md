@@ -33,6 +33,18 @@ In Instagram Accounts Center, choose **Your information and permissions → Expo
 
 V1: responsive dashboard, ZIP parser, follower comparison, local snapshot storage/history, username search, direct Instagram profile links, clear-history control, basic tests.
 
-Next: test multiple real-world export variants, dedicated account separation, installable offline PWA, exportable reports, and accessibility/device QA.
+Next: test multiple real-world export variants, dedicated account separation, raster app icons, exportable reports, and accessibility/device QA.
 
 **Not affiliated with Instagram or Meta.**
+
+## Mobile installation and preview hosting
+
+The app includes a web manifest and service worker. On iPhone open the HTTPS site in Safari, tap **Share → Add to Home Screen**. On Android Chrome open the menu and choose **Add to Home screen** / **Install app** if available.
+
+The UI and follower analysis work without a backend. A static host can deploy the Vite build:
+- Build: `npm install --no-audit --no-fund && npm run build`
+- Publish directory: `dist`
+- Node.js: 22
+
+**Note:** Initial offline use is best-effort; please validate the actual iPhone and Android installation workflows before treating the PWA as production-ready.
+
