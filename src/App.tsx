@@ -15,7 +15,7 @@ function dateLabel(date: string) {
   return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function Icon({ name, size = 20 }: { name: 'upload' | 'people' | 'chart' | 'clock' | 'shield' | 'arrow' | 'search' | 'info' | 'spark'; size?: number }) {
+function Icon({ name, size = 20 }: { name: 'upload' | 'people' | 'chart' | 'clock' | 'shield' | 'arrow' | 'search' | 'info' | 'spark' | 'profile'; size?: number }) {
   const strokes: Record<typeof name, React.ReactNode> = {
     upload: <><path d="M12 16V3m0 0L7 8m5-5 5 5"/><path d="M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></>,
     people: <><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 5"/></>,
@@ -26,6 +26,7 @@ function Icon({ name, size = 20 }: { name: 'upload' | 'people' | 'chart' | 'cloc
     search: <><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></>,
     info: <><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></>,
     spark: <><path d="m12 2 2.1 7.9L22 12l-7.9 2.1L12 22l-2.1-7.9L2 12l7.9-2.1z"/></>,
+    profile: <><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-7 8-7s8 2.5 8 7"/></>,
   }
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{strokes[name]}</svg>
 }
@@ -40,10 +41,13 @@ function AccountList({ users, search, onSearch }: { users: string[]; search: str
   const filtered = useMemo(() => users.filter((name) => name.includes(search.trim().toLowerCase().replace(/^@/, ''))), [users, search])
   return <>
     <label className="searchbox"><Icon name="search" size={19}/><input value={search} onChange={(e) => onSearch(e.target.value)} placeholder="Search usernames" aria-label="Search usernames" /></label>
+    <div className="profile-photo-note" role="note"><Icon name="info" size={18}/><span>Instagram exports don't include profile pictures. Tap any account to view its real, current photo on Instagram.</span></div>
     <div className="list-meta">{filtered.length.toLocaleString()} account{filtered.length === 1 ? '' : 's'}</div>
     {filtered.length === 0 ? <div className="empty-list">No matching accounts.</div> :
-      <div className="account-list">{filtered.slice(0, limit).map((user) => <a key={user} className="account-row" href={'https://www.instagram.com/' + encodeURIComponent(user) + '/'} target="_blank" rel="noopener noreferrer" aria-label={'Open @' + user + ' on Instagram'}>
-        <span className="avatar">{user.charAt(0).toUpperCase()}</span><span className="account-handle">@{user}</span><span className="profile-link">View profile <Icon name="arrow" size={16}/></span>
+      <div className="account-list">{filtered.slice(0, limit).map((user) => <a key={user} className="account-row" href={'https://www.instagram.com/' + encodeURIComponent(user) + '/'} target="_blank" rel="noopener noreferrer" title={'Open @' + user + ' on Instagram to see the real profile picture'} aria-label={'View @' + user + ' profile picture on Instagram'}>
+        <span className="avatar avatar-placeholder" aria-hidden="true"><Icon name="profile" size={21}/></span>
+        <span className="account-identity"><strong className="account-handle">@{user}</strong><small>Tap to view photo on Instagram</small></span>
+        <span className="profile-link">Open profile <Icon name="arrow" size={16}/></span>
       </a>)}</div>}
     {filtered.length > limit && <button className="secondary-button more-button" onClick={() => setLimit((n) => n + 40)}>Show more ({filtered.length - limit} remaining)</button>}
   </>

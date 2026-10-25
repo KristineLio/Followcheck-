@@ -137,3 +137,20 @@ footer{display:flex;justify-content:space-between;border-top:1px solid #ede7ee;p
   .welcome-secondary{padding:12px 7px 22px}
   .welcome-secondary h2{font-size:26px}
 }
+
+/* Real Instagram profile pictures are not included in downloadable relationship lists.
+   Placeholders are deliberately not presented as real photos. */
+.profile-photo-note{display:flex;gap:10px;align-items:flex-start;background:#f5f0fa;border:1px solid #eae1f0;color:#766781;padding:13px 15px;border-radius:12px;font-size:12px;line-height:1.55;margin:14px 0 17px}
+.profile-photo-note svg{flex:none;color:#a778c6;margin-top:1px}
+.account-identity{display:flex;flex-direction:column;min-width:0;gap:4px}
+.account-identity small{color:#aaa1ac;font-size:11px}
+.avatar-placeholder{background:#f4eff7;color:#9b86a9;border:1px solid #ece3f1}
+.account-row:hover .avatar-placeholder,.account-row:focus-visible .avatar-placeholder{background:#f0e2f8;color:#9562b5}
+.account-row:hover .profile-link,.account-row:focus-visible .profile-link{color:#9865b9}
+.account-row:focus-visible{outline:2px solid #a978d2;outline-offset:3px;border-radius:8px}
+@media(max-width:760px){
+  .profile-photo-note{font-size:11px;margin:12px 0}
+  .account-identity small{font-size:10px}
+  .account-row{min-height:69px}
+  .profile-link{font-size:10px}
+}
