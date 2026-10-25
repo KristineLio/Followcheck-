@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-:root{font-family:'DM Sans',system-ui,-apple-system,sans-serif;color:#23212b;background:#faf9fb;font-synthesis:none;font-weight:400}
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#23212b;background:#faf9fb;font-synthesis:none;font-weight:400}
 *{box-sizing:border-box}
 body{margin:0;min-width:320px}
 button,input{font:inherit}
@@ -10,8 +9,8 @@ a{color:inherit;text-decoration:none}
 .site{min-height:100vh;background:radial-gradient(ellipse 75% 25% at 50% 0%,#faeafa 0%,transparent 100%),#faf9fb}
 .page{max-width:1050px;margin:auto;padding:0 24px}
 .topbar{height:95px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eae5ed}
-.brand{display:flex;gap:12px;align-items:center;font:800 22px 'Plus Jakarta Sans',sans-serif;letter-spacing:-1.2px}
-.brand-mark{height:40px;width:40px;display:grid;place-items:center;background:linear-gradient(140deg,#fd8ba1,#ad7ee6);border-radius:13px;color:white;font:800 27px 'Plus Jakarta Sans';padding-bottom:4px}
+.brand{display:flex;gap:12px;align-items:center;font:800 22px system-ui,-apple-system,sans-serif;letter-spacing:-1.2px}
+.brand-mark{height:40px;width:40px;display:grid;place-items:center;background:linear-gradient(140deg,#fd8ba1,#ad7ee6);border-radius:13px;color:white;font:800 27px system-ui;padding-bottom:4px}
 .brand-dot{color:#fff1b6;margin-left:1px}
 .private-label{display:flex;gap:8px;align-items:center;color:#7b7184;font-weight:700;font-size:10px;letter-spacing:1.3px}
 main{max-width:100%;min-height:66vh}
@@ -19,7 +18,7 @@ main{max-width:100%;min-height:66vh}
 .eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;color:#ad7bd2}
 .spark-icon{display:inline-flex;vertical-align:middle;margin-right:6px}
 h1,h2,h3,p{margin-top:0}
-h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif}
+h1,h2,h3{font-family:system-ui,-apple-system,sans-serif}
 .welcome h1{font-size:clamp(43px,7vw,68px);font-weight:800;letter-spacing:-3.5px;line-height:1.14;margin:20px 0}
 .period{color:#ee85a6}
 .welcome p{font-size:17px;line-height:1.85;color:#706978;max-width:580px;margin:0 auto 30px}
@@ -38,7 +37,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif}
 .guide-time{font-size:11px;color:#ada4ae;background:#f6f3f7;padding:9px 12px;border-radius:20px;white-space:nowrap}
 .steps{display:grid;gap:16px;padding:8px 0 20px}
 .steps>div{display:flex;align-items:flex-start;gap:17px}
-.steps>div>span{flex:none;border-radius:11px;background:#f8effb;color:#ab77ce;padding:10px;font:800 11px 'Plus Jakarta Sans'}
+.steps>div>span{flex:none;border-radius:11px;background:#f8effb;color:#ab77ce;padding:10px;font:800 11px system-ui}
 .steps p{margin:0;color:#756e7b;font-size:13px;line-height:1.7}.steps strong{color:#27202b;font-size:14px}
 .text-link{color:#aa72c8;font-weight:800;font-size:13px;display:inline-flex;gap:7px;align-items:center}
 .text-link:hover{text-decoration:underline}.as-button{border:0;background:none;padding:0}
@@ -51,7 +50,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:0 0 22px}
 .metric{display:flex;flex-direction:column;background:white;border:1px solid #ede8ee;border-radius:17px;padding:25px 21px;min-height:163px}
 .metric-title{font-size:12px;font-weight:700;color:#8f8594}
-.metric-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:35px;letter-spacing:-1.5px;font-weight:800;line-height:1.2;margin-top:17px}
+.metric-value{font-family:system-ui,-apple-system,sans-serif;font-size:35px;letter-spacing:-1.5px;font-weight:800;line-height:1.2;margin-top:17px}
 .metric-footer{color:#aea5ae;font-size:11px;margin-top:8px}
 .dark{color:#28222d}.pink-text{color:#eb86a4}.purple-text{color:#a37dd8}
 .highlight{display:flex;align-items:flex-start;gap:21px;background:linear-gradient(113deg,#fff3f8,#f8f1ff);margin-bottom:20px}
