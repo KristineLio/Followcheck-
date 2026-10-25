@@ -27,7 +27,7 @@ describe('Instagram ZIP parsing', () => {
     zip.file('followers_1.json', '[]')
     const blob = await zip.generateAsync({ type: 'blob' })
     const file = new File([blob], 'export.zip')
-    await expect(parseInstagramZip(file)).rejects.toThrow(/Missing followers or following/)
+    await expect(parseInstagramZip(file)).rejects.toThrow(/complete Followers and Following/)
   })
 
   it('compares two exports without claiming a definite unfollow', () => {
