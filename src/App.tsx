@@ -191,35 +191,49 @@ export default function App() {
           <div className="snapshot-pill"><span className="status-dot"/> Last imported {dateLabel(current.importedAt)} <span className="pill-divider">·</span> {snapshots.length} saved snapshot{snapshots.length === 1 ? '' : 's'}</div>
 
           {tab === 'overview' && insights && <>
-            <section className={'count-check card' + (countMismatch ? ' mismatch' : '')} aria-labelledby="count-check-heading">
-              <div className="count-check-heading"><Icon name="info" size={21}/><div>
-                <h2 id="count-check-heading">{countMismatch ? 'Follower total does not match Instagram' : countMatched ? 'Follower total checked' : 'Check the export before trusting these numbers'}</h2>
-                <p>FollowCheck extracted <strong>{current.followers.length.toLocaleString()} followers</strong> and <strong>{current.following.length.toLocaleString()} following</strong>. Compare both totals with your Instagram profile before trusting any account comparison.</p>
-              </div></div>
-              <form className="count-check-form" onSubmit={(event) => { event.preventDefault(); void verifyFollowerCount() }}>
-                <div className="count-check-inputs">
-                  <label htmlFor="expected-followers">Followers on Instagram<input id="expected-followers" type="number" min="0" step="1" inputMode="numeric" value={expectedFollowersInput} onChange={(event) => setExpectedFollowersInput(event.target.value)} placeholder="Followers total" /></label>
-                  <label htmlFor="expected-following">Following on Instagram<input id="expected-following" type="number" min="0" step="1" inputMode="numeric" value={expectedFollowingInput} onChange={(event) => setExpectedFollowingInput(event.target.value)} placeholder="Following total" /></label>
-                </div>
-                <button className="secondary-button verify-button" type="submit">Compare both counts</button>
-              </form>
-              {countMismatch && <div className="count-error" role="alert"><strong>The ZIP doesn't match Instagram.</strong> Followers: Instagram {current.checkedFollowerCount?.toLocaleString()} vs ZIP {current.followers.length.toLocaleString()}. Following: Instagram {current.checkedFollowingCount?.toLocaleString()} vs ZIP {current.following.length.toLocaleString()}. We have hidden follow-back results. Check the exported account and All time selection.</div>}
-              {countMatched && <p className="count-success">✓ Both counts match. This does not guarantee every username is correct or the export is current.</p>}
-              <details className="import-details"><summary>See which export files were read</summary>
-                {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((entry, i) => <li key={i}><code>{entry.name}</code>: {entry.parsed.toLocaleString()} usernames</li>)}</ul> : <p>This import predates file diagnostics. Re-upload the original ZIP to inspect its files.</p>}
-                <p>Format: {current.format || 'Unknown'}. Data stays on your device.</p>
+            <section className={'automatic-results-notice' + (countMismatch ? ' mismatch' : '')} role="status">
+              <Icon name="info" size={20}/>
+              <div><strong>{countMismatch ? 'Your ZIP does not match the counts you checked' : 'Automatic results from your Instagram export'}</strong>
+              <p>{countMismatch
+                ? 'The ZIP differs from the Instagram totals you entered earlier. Lists are shown for inspection, but they may contain incorrect accounts. Please do not unfollow based on them.'
+                : 'Both lists are calculated automatically—no manual counts required. Results are based only on the ZIP, not live Instagram. If the export is incomplete or outdated, counts may be wrong.'}</p>
+              <details className="auto-diagnostics">
+                <summary>View import diagnostics {hasCountCheck ? 'and count comparison' : ''}</summary>
+                <p><strong>ZIP:</strong> {current.followers.length.toLocaleString()} followers · {current.following.length.toLocaleString()} following · Format: {current.format || 'Unknown'}</p>
+                {hasCountCheck && <p><strong>Previously entered Instagram totals:</strong> {current.checkedFollowerCount?.toLocaleString()} followers · {current.checkedFollowingCount?.toLocaleString()} following</p>}
+                {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((entry, i) => <li key={i}><code>{entry.name}</code> — {entry.parsed.toLocaleString()} usernames</li>)}</ul> : <p>Re-import the original ZIP if you want a file-by-file breakdown.</p>}
+                <button className="secondary-button" type="button" disabled={busy} onClick={chooseFile}><Icon name="upload" size={16}/> Import a different ZIP</button>
               </details>
+              </div>
             </section>
             <div className="metrics-grid">
               <Metric title="Your followers" value={current.followers.length.toLocaleString()} tone="dark" footer="Accounts following you"/>
               <Metric title="You're following" value={current.following.length.toLocaleString()} tone="dark" footer="Accounts you follow"/>
-              <Metric title="Don't follow me back" value={countMatched ? insights.notFollowingBack.length.toLocaleString() : '—'} tone="pink-text" footer={countMatched ? 'Based on verified-count ZIP' : 'Verify both counts'}/>
-              <Metric title="Mutual connections" value={countMatched ? insights.mutual.length.toLocaleString() : '—'} tone="purple-text" footer={countMatched ? 'Based on verified-count ZIP' : 'Verify both counts'}/>
+              <Metric title="Don't follow me back" value={insights.notFollowingBack.length.toLocaleString()} tone="pink-text" footer="From ZIP · unverified"/>
+              <Metric title="Mutual connections" value={insights.mutual.length.toLocaleString()} tone="purple-text" footer="From ZIP · unverified"/>
             </div>
-            {!countMatched ? <section className="highlight card followback-highlight"><div className="highlight-icon"><Icon name="people" size={24}/></div><div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2><p>Results are locked until both imported totals match Instagram. The current ZIP may be incomplete.</p><button className="text-link as-button" onClick={() => setTab('notFollowingMe')}>Open section <Icon name="arrow" size={17}/></button></div></section> : <section className="highlight card followback-highlight">
-              <div className="highlight-icon"><Icon name="people" size={24}/></div>
-              <div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2><p>{insights.notFollowingBack.length.toLocaleString()} accounts you follow are absent from your followers export.</p><button className="text-link as-button" onClick={() => { setSearch(''); setTab('notFollowingMe') }}>See accounts <Icon name="arrow" size={17}/></button></div>
-            </section>}
+            <div className="automatic-lists">
+              <section className="auto-list-card">
+                <div className="auto-list-top"><span className="auto-list-icon pink"><Icon name="profile" size={20}/></span><span className="auto-list-label">EXPORT-BASED · UNVERIFIED</span></div>
+                <h2>Don't follow me back</h2>
+                <p><strong>{insights.notFollowingBack.length.toLocaleString()}</strong> accounts you follow are absent from this ZIP's followers list.</p>
+                <div className="auto-list-preview">
+                  {insights.notFollowingBack.slice(0, 4).map((user) => <span key={user}>@{user}</span>)}
+                  {insights.notFollowingBack.length === 0 && <span>No accounts found in this export.</span>}
+                </div>
+                <button className="auto-list-action" onClick={() => { setSearch(''); setTab('notFollowingMe') }}>View full list <Icon name="arrow" size={16}/></button>
+              </section>
+              <section className="auto-list-card">
+                <div className="auto-list-top"><span className="auto-list-icon lilac"><Icon name="people" size={20}/></span><span className="auto-list-label">EXPORT-BASED · UNVERIFIED</span></div>
+                <h2>Mutual followers</h2>
+                <p><strong>{insights.mutual.length.toLocaleString()}</strong> accounts appear in both exported lists.</p>
+                <div className="auto-list-preview">
+                  {insights.mutual.slice(0, 4).map((user) => <span key={user}>@{user}</span>)}
+                  {insights.mutual.length === 0 && <span>No matching accounts found in this export.</span>}
+                </div>
+                <button className="auto-list-action" onClick={() => { setFilter('mutual'); setSearch(''); setTab('accounts') }}>View mutuals <Icon name="arrow" size={16}/></button>
+              </section>
+            </div>
             <section className="changes card">
               <div className="section-heading"><div><span className="eyebrow">GROWTH TRACKING</span><h2>Since your last import</h2></div><Icon name="chart" size={22}/></div>
               {historyComparable ? <>
