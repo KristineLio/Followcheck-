@@ -62,8 +62,6 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
   const [filter, setFilter] = useState<Filter>('notFollowingBack')
   const [search, setSearch] = useState('')
-  const [expectedFollowersInput, setExpectedFollowersInput] = useState('')
-  const [expectedFollowingInput, setExpectedFollowingInput] = useState('')
 
   useEffect(() => {
     getSnapshots().then(setSnapshots).catch(() => setError('Local storage is unavailable. Try enabling browser storage and reload.')).finally(() => setLoading(false))
@@ -85,28 +83,6 @@ export default function App() {
     previous?.checkedFollowingCount !== undefined &&
     previous.checkedFollowerCount === previous.followers.length &&
     previous.checkedFollowingCount === previous.following.length)
-
-  useEffect(() => {
-    setExpectedFollowersInput(current?.checkedFollowerCount === undefined ? '' : String(current.checkedFollowerCount))
-    setExpectedFollowingInput(current?.checkedFollowingCount === undefined ? '' : String(current.checkedFollowingCount))
-  }, [current?.id])
-
-  async function verifyFollowerCount() {
-    if (!current) return
-    const followerRaw = expectedFollowersInput.trim()
-    const followingRaw = expectedFollowingInput.trim()
-    if (![followerRaw, followingRaw].every((value) => /^\d+$/.test(value) && Number.isSafeInteger(Number(value)))) {
-      setError('Enter both Instagram counts as whole numbers before comparing.')
-      return
-    }
-    try {
-      await addSnapshot({ ...current, checkedFollowerCount: Number(followerRaw), checkedFollowingCount: Number(followingRaw) })
-      setSnapshots(await getSnapshots())
-      setError('')
-    } catch {
-      setError('Could not save the count check on this device.')
-    }
-  }
 
   async function handleUpload(file?: File) {
     if (!file) return
@@ -245,46 +221,30 @@ export default function App() {
           </>}
 
           {tab === 'notFollowingMe' && insights && <section className="accounts-page card followback-section">
-            <div className="section-heading"><div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2></div><Icon name="people" size={24}/></div>
-            <p className="followback-desc">Accounts you follow that are absent from your followers list. A non-mutual follow is not proof somebody unfollowed you.</p>
-            {!countMatched ? <div className="followback-locked">
-              <Icon name="info" size={26}/>
-              <h3>Verify your Instagram export here</h3>
-              <p>We extracted <strong>{current.followers.length.toLocaleString()} followers</strong> and <strong>{current.following.length.toLocaleString()} following</strong> from your ZIP. Check both totals below before using this list.</p>
-              <form className="followback-inline-form" onSubmit={(event) => { event.preventDefault(); void verifyFollowerCount() }}>
-                <div className="count-check-inputs">
-                  <label htmlFor="followback-followers">Followers on Instagram
-                    <input id="followback-followers" type="number" min="0" step="1" inputMode="numeric" placeholder="Followers count" value={expectedFollowersInput} onChange={(event) => setExpectedFollowersInput(event.target.value)}/>
-                  </label>
-                  <label htmlFor="followback-following">Following on Instagram
-                    <input id="followback-following" type="number" min="0" step="1" inputMode="numeric" placeholder="Following count" value={expectedFollowingInput} onChange={(event) => setExpectedFollowingInput(event.target.value)}/>
-                  </label>
-                </div>
-                <button className="primary-button" type="submit">Compare counts <Icon name="arrow" size={17}/></button>
-              </form>
-              {countMismatch && <div className="followback-mismatch" role="alert">
-                <strong>These lists don't match.</strong>
-                <span>Instagram: {current.checkedFollowerCount?.toLocaleString()} followers, {current.checkedFollowingCount?.toLocaleString()} following.</span>
-                <span>ZIP: {current.followers.length.toLocaleString()} followers, {current.following.length.toLocaleString()} following.</span>
-                <span>Until we fix the export mismatch, any non-follower list would be misleading.</span>
-              </div>}
-              <details className="followback-diagnostics">
-                <summary>Which files did FollowCheck read?</summary>
-                {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((file, index) => <li key={index}><code>{file.name}</code>: {file.parsed.toLocaleString()} usernames</li>)}</ul>
-                : <p>Re-upload your original ZIP to show the file-by-file counts.</p>}
-              </details>
-              <button className="secondary-button" type="button" onClick={chooseFile} disabled={busy}>Upload a new ZIP</button>
-            </div> : <>
-              <p className="followback-count"><strong>{insights.notFollowingBack.length.toLocaleString()}</strong> accounts from the verified-count export</p>
-              <AccountList users={insights.notFollowingBack} search={search} onSearch={setSearch}/>
-            </>}
+            <div className="section-heading"><div><span className="eyebrow">AUTOMATIC FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2></div><Icon name="people" size={24}/></div>
+            <p className="followback-desc">{insights.notFollowingBack.length.toLocaleString()} accounts you follow are absent from your exported followers list. This is not proof somebody deliberately unfollowed you.</p>
+            <div className={'results-quality-notice' + (countMismatch ? ' mismatch' : '')} role="status">
+              <Icon name="info" size={19}/>
+              <div><strong>{countMismatch ? 'Instagram counts and ZIP counts differ' : 'Unverified ZIP-based results'}</strong>
+              <p>These usernames were compared automatically without login or manual entry. {countMismatch ? 'The export has a known mismatch, so this list may be substantially wrong. Do not unfollow people based on it.' : 'Check that your export is complete and current before acting on this list.'}</p></div>
+            </div>
+            <p className="followback-count"><strong>{insights.notFollowingBack.length.toLocaleString()}</strong> accounts found in imported data</p>
+            <AccountList users={insights.notFollowingBack} search={search} onSearch={setSearch}/>
+            <details className="auto-diagnostics"><summary>Show export file diagnostics</summary>
+              {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((file,index) => <li key={index}><code>{file.name}</code>: {file.parsed.toLocaleString()} usernames</li>)}</ul> : <p>Re-import your ZIP to inspect file-level counts.</p>}
+            </details>
           </section>}
 
-          {tab === 'accounts' && insights && (!countMatched ? <section className="accounts-page card"><h2>Account comparison hidden</h2><p>The export total differs from Instagram, so this account list may be inaccurate.</p><button className="secondary-button" onClick={() => setTab('overview')}>Check my import</button></section> : <section className="accounts-page card">
-            <div className="section-heading"><div><span className="eyebrow">YOUR CONNECTIONS</span><h2>Explore accounts</h2></div></div>
+          {tab === 'accounts' && insights && <section className="accounts-page card">
+            <div className="section-heading"><div><span className="eyebrow">YOUR EXPORTED CONNECTIONS</span><h2>Explore accounts</h2></div><Icon name="people" size={23}/></div>
+            <div className={'results-quality-notice' + (countMismatch ? ' mismatch' : '')} role="status">
+              <Icon name="info" size={19}/>
+              <div><strong>{countMismatch ? 'Known export mismatch — list may be inaccurate' : 'Automatically analyzed ZIP — unverified'}</strong>
+              <p>Mutual means the username appears in both exported lists. {countMismatch ? 'The counts differ from Instagram, so these results may be incomplete.' : 'This is not a live Instagram list; verify your export before taking action.'}</p></div>
+            </div>
             <div className="filter-tabs" role="group" aria-label="Filter accounts">{filters.map((item) => <button key={item.key} className={filter === item.key ? 'active' : ''} onClick={() => { setFilter(item.key); setSearch('') }}>{item.label} <span>{insights[item.key].length}</span></button>)}</div>
             <AccountList users={insights[filter]} search={search} onSearch={setSearch}/>
-          </section>)}
+          </section>}
 
           {tab === 'history' && insights && <section className="history-page card">
             <div className="section-heading"><div><span className="eyebrow">LOCAL HISTORY</span><h2>Your saved snapshots</h2></div><Icon name="clock" size={23}/></div>

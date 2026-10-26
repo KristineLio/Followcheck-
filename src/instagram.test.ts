@@ -21,6 +21,7 @@ describe('Instagram ZIP parsing', () => {
     expect(snap.followers).toEqual(['alice', 'bob'])
     expect(snap.following).toEqual(['bob', 'charlie'])
     expect(analyze(snap).notFollowingBack).toEqual(['charlie'])
+    expect(analyze(snap).mutual).toEqual(['bob'])
     expect(analyze(snap).youDontFollowBack).toEqual(['alice'])
   })
 

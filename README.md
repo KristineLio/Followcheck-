@@ -58,3 +58,11 @@ Re-importing an *identical original ZIP* does not create a new growth snapshot. 
 ## Don't follow me back section
 
 A dedicated, searchable mobile and desktop tab. Follower lists only appear when **both** followers and following counts extracted from the ZIP match the manually entered Instagram totals; otherwise it prompts re-import rather than displaying misleading usernames. Even matched counts are not proof of freshness or completeness.
+
+## Automatic follower comparison UX
+
+After a ZIP upload, the Overview immediately shows two preview cards: **Don't follow me back** and **Mutual followers**. Both account lists are accessible without typing Instagram account totals or completing a verification gate. All entries are computed locally by comparing the exported follower/following usernames.
+
+**Data accuracy warning:** An Instagram ZIP can be incomplete, outdated, from the wrong account, or parsed incorrectly. A previous test import showed a major mismatch (105 extracted followers versus 1,323 displayed on Instagram). Therefore all displayed account-comparison results are explicitly labeled **export-based/unverified**, including the full account lists. If a previous manually entered count mismatch exists in local storage, the UI shows an elevated warning. Never market such counts as confirmed, and do not encourage mass unfollowing.
+
+The ZIP diagnostics remain available in expandable sections, so parser issues can be investigated without requiring users to enter counts. A future release must resolve export completeness and real-file parser validation.
