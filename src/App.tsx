@@ -211,9 +211,9 @@ export default function App() {
               <Metric title="Don't follow me back" value={countMatched ? insights.notFollowingBack.length.toLocaleString() : '—'} tone="pink-text" footer={countMatched ? 'Based on verified-count ZIP' : 'Verify both counts'}/>
               <Metric title="Mutual connections" value={countMatched ? insights.mutual.length.toLocaleString() : '—'} tone="purple-text" footer={countMatched ? 'Based on verified-count ZIP' : 'Verify both counts'}/>
             </div>
-            {countMismatch ? <section className="highlight card"><div><h2>Comparison paused</h2><p>Your follower total differs from Instagram, so we won't suggest people to unfollow yet.</p><button className="secondary-button" onClick={chooseFile} disabled={busy}><Icon name="upload" size={17}/> Re-import ZIP</button></div></section> : <section className="highlight card">
+            {!countMatched ? <section className="highlight card followback-highlight"><div className="highlight-icon"><Icon name="people" size={24}/></div><div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2><p>Results are locked until both imported totals match Instagram. The current ZIP may be incomplete.</p><button className="text-link as-button" onClick={() => setTab('notFollowingMe')}>Open section <Icon name="arrow" size={17}/></button></div></section> : <section className="highlight card followback-highlight">
               <div className="highlight-icon"><Icon name="people" size={24}/></div>
-              <div><span className="eyebrow">ACCOUNT INSIGHTS</span><h2>{insights.notFollowingBack.length} don't follow you back</h2><p>See exactly which accounts you follow that aren't in your followers list.</p><button className="text-link as-button" onClick={() => { setFilter('notFollowingBack'); setTab('accounts') }}>Explore accounts <Icon name="arrow" size={17}/></button></div>
+              <div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2><p>{insights.notFollowingBack.length.toLocaleString()} accounts you follow are absent from your followers export.</p><button className="text-link as-button" onClick={() => { setSearch(''); setTab('notFollowingMe') }}>See accounts <Icon name="arrow" size={17}/></button></div>
             </section>}
             <section className="changes card">
               <div className="section-heading"><div><span className="eyebrow">GROWTH TRACKING</span><h2>Since your last import</h2></div><Icon name="chart" size={22}/></div>
@@ -225,10 +225,24 @@ export default function App() {
             </section>
           </>}
 
-          {tab === 'accounts' && insights && (countMismatch ? <section className="accounts-page card"><h2>Account comparison hidden</h2><p>The export total differs from Instagram, so this account list may be inaccurate.</p><button className="secondary-button" onClick={() => setTab('overview')}>Check my import</button></section> : <section className="accounts-page card">
+          {tab === 'notFollowingMe' && insights && <section className="accounts-page card followback-section">
+            <div className="section-heading"><div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2></div><Icon name="people" size={24}/></div>
+            <p className="followback-desc">Accounts you follow that are absent from your followers list. A non-mutual follow is not proof somebody unfollowed you.</p>
+            {!countMatched ? <div className="followback-locked" role="status">
+              <Icon name="info" size={26}/>
+              <h3>Results hidden until both counts match</h3>
+              <p>FollowCheck extracted <strong>{current.followers.length.toLocaleString()} followers</strong> and <strong>{current.following.length.toLocaleString()} following</strong>. Verify both against Instagram before using this section.</p>
+              <button className="primary-button" onClick={() => setTab('overview')}>Verify my import <Icon name="arrow" size={17}/></button>
+              <button className="secondary-button" onClick={chooseFile} disabled={busy}>Upload a new ZIP</button>
+            </div> : <>
+              <p className="followback-count"><strong>{insights.notFollowingBack.length.toLocaleString()}</strong> accounts from the verified-count export</p>
+              <AccountList users={insights.notFollowingBack} search={search} onSearch={setSearch}/>
+            </>}
+          </section>}
+
+          {tab === 'accounts' && insights && (!countMatched ? <section className="accounts-page card"><h2>Account comparison hidden</h2><p>The export total differs from Instagram, so this account list may be inaccurate.</p><button className="secondary-button" onClick={() => setTab('overview')}>Check my import</button></section> : <section className="accounts-page card">
             <div className="section-heading"><div><span className="eyebrow">YOUR CONNECTIONS</span><h2>Explore accounts</h2></div></div>
             <div className="filter-tabs" role="group" aria-label="Filter accounts">{filters.map((item) => <button key={item.key} className={filter === item.key ? 'active' : ''} onClick={() => { setFilter(item.key); setSearch('') }}>{item.label} <span>{insights[item.key].length}</span></button>)}</div>
-            {!hasCountCheck && <p className="unverified-hint">Unverified export — compare the follower total on Instagram before making changes.</p>}
             <AccountList users={insights[filter]} search={search} onSearch={setSearch}/>
           </section>)}
 
@@ -246,6 +260,7 @@ export default function App() {
 
       {current && <nav className="bottom-nav" aria-label="Main navigation">
         <button className={tab === 'overview' ? 'selected' : ''} onClick={() => setTab('overview')}><Icon name="chart" size={21}/><span>Overview</span></button>
+        <button className={tab === 'notFollowingMe' ? 'selected' : ''} onClick={() => { setSearch(''); setTab('notFollowingMe') }}><Icon name="profile" size={21}/><span>Don't follow me back</span></button>
         <button className={tab === 'accounts' ? 'selected' : ''} onClick={() => setTab('accounts')}><Icon name="people" size={21}/><span>Accounts</span></button>
         <button className={tab === 'history' ? 'selected' : ''} onClick={() => setTab('history')}><Icon name="clock" size={21}/><span>History</span></button>
       </nav>}
