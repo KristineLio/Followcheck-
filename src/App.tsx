@@ -68,6 +68,11 @@ export default function App() {
   useEffect(() => {
     getSnapshots().then(setSnapshots).catch(() => setError('Local storage is unavailable. Try enabling browser storage and reload.')).finally(() => setLoading(false))
   }, [])
+  
+  // Each tab should begin at the top, not at the previous tab's scroll position.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [tab])
 
   const current = snapshots[0]
   const previous = snapshots[1]
@@ -228,12 +233,33 @@ export default function App() {
           {tab === 'notFollowingMe' && insights && <section className="accounts-page card followback-section">
             <div className="section-heading"><div><span className="eyebrow">FOLLOW-BACK CHECKER</span><h2>Don't follow me back</h2></div><Icon name="people" size={24}/></div>
             <p className="followback-desc">Accounts you follow that are absent from your followers list. A non-mutual follow is not proof somebody unfollowed you.</p>
-            {!countMatched ? <div className="followback-locked" role="status">
+            {!countMatched ? <div className="followback-locked">
               <Icon name="info" size={26}/>
-              <h3>Results hidden until both counts match</h3>
-              <p>FollowCheck extracted <strong>{current.followers.length.toLocaleString()} followers</strong> and <strong>{current.following.length.toLocaleString()} following</strong>. Verify both against Instagram before using this section.</p>
-              <button className="primary-button" onClick={() => setTab('overview')}>Verify my import <Icon name="arrow" size={17}/></button>
-              <button className="secondary-button" onClick={chooseFile} disabled={busy}>Upload a new ZIP</button>
+              <h3>Verify your Instagram export here</h3>
+              <p>We extracted <strong>{current.followers.length.toLocaleString()} followers</strong> and <strong>{current.following.length.toLocaleString()} following</strong> from your ZIP. Check both totals below before using this list.</p>
+              <form className="followback-inline-form" onSubmit={(event) => { event.preventDefault(); void verifyFollowerCount() }}>
+                <div className="count-check-inputs">
+                  <label htmlFor="followback-followers">Followers on Instagram
+                    <input id="followback-followers" type="number" min="0" step="1" inputMode="numeric" placeholder="Followers count" value={expectedFollowersInput} onChange={(event) => setExpectedFollowersInput(event.target.value)}/>
+                  </label>
+                  <label htmlFor="followback-following">Following on Instagram
+                    <input id="followback-following" type="number" min="0" step="1" inputMode="numeric" placeholder="Following count" value={expectedFollowingInput} onChange={(event) => setExpectedFollowingInput(event.target.value)}/>
+                  </label>
+                </div>
+                <button className="primary-button" type="submit">Compare counts <Icon name="arrow" size={17}/></button>
+              </form>
+              {countMismatch && <div className="followback-mismatch" role="alert">
+                <strong>These lists don't match.</strong>
+                <span>Instagram: {current.checkedFollowerCount?.toLocaleString()} followers, {current.checkedFollowingCount?.toLocaleString()} following.</span>
+                <span>ZIP: {current.followers.length.toLocaleString()} followers, {current.following.length.toLocaleString()} following.</span>
+                <span>Until we fix the export mismatch, any non-follower list would be misleading.</span>
+              </div>}
+              <details className="followback-diagnostics">
+                <summary>Which files did FollowCheck read?</summary>
+                {current.sourceFiles?.length ? <ul>{current.sourceFiles.map((file, index) => <li key={index}><code>{file.name}</code>: {file.parsed.toLocaleString()} usernames</li>)}</ul>
+                : <p>Re-upload your original ZIP to show the file-by-file counts.</p>}
+              </details>
+              <button className="secondary-button" type="button" onClick={chooseFile} disabled={busy}>Upload a new ZIP</button>
             </div> : <>
               <p className="followback-count"><strong>{insights.notFollowingBack.length.toLocaleString()}</strong> accounts from the verified-count export</p>
               <AccountList users={insights.notFollowingBack} search={search} onSearch={setSearch}/>
