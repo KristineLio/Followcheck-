@@ -66,3 +66,11 @@ After a ZIP upload, the Overview immediately shows two preview cards: **Don't fo
 **Data accuracy warning:** An Instagram ZIP can be incomplete, outdated, from the wrong account, or parsed incorrectly. A previous test import showed a major mismatch (105 extracted followers versus 1,323 displayed on Instagram). Therefore all displayed account-comparison results are explicitly labeled **export-based/unverified**, including the full account lists. If a previous manually entered count mismatch exists in local storage, the UI shows an elevated warning. Never market such counts as confirmed, and do not encourage mass unfollowing.
 
 The ZIP diagnostics remain available in expandable sections, so parser issues can be investigated without requiring users to enter counts. A future release must resolve export completeness and real-file parser validation.
+
+## Date-restricted export diagnostic
+
+Some Instagram exports contain only recent followers but a much older following history. A confirmed example had 105 follower records from October 2025–October 2026, while following records began in 2014. The resulting 31 mutual and 826 non-follow-back counts were misleading, because Instagram showed 1,323 followers. No application can recover missing followers from that partial ZIP.
+
+FollowCheck now inspects timestamp coverage when importing JSON exports and raises a prominent **possibly date-limited follower export** warning when the follower list covers approximately one year, the following history is older by more than two years, and there are significantly fewer exported followers than following. It is a heuristic, **not** proof of the requested export configuration; it must not be used to silently change follow counts.
+
+Users must request **Followers and following → All time** in Accounts Center and re-import the resulting ZIP. Existing snapshots must be re-imported to obtain this new diagnostic. Synthetic fixtures test the timestamp warning; no private user archive is committed to the repository.

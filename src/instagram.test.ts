@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import JSZip from 'jszip'
-import { analyze, extractHtmlUsernames, extractUsernames, parseInstagramZip, type Snapshot } from './instagram'
+import { analyze, extractHtmlUsernames, extractUsernames, inspectDateCoverage, parseInstagramZip, type Snapshot } from './instagram'
 
 function fixture(followers: string[], following: string[]): Promise<File> {
   const zip = new JSZip()
@@ -90,5 +90,43 @@ describe('Default HTML Instagram ZIP exports', () => {
     zip.file('following.json', JSON.stringify({ relationships_following: [] }))
     const blob = await zip.generateAsync({ type: 'blob' })
     await expect(parseInstagramZip(new File([blob], 'instagram.zip'))).rejects.toThrow(/complete Followers and Following/)
+  })
+})
+
+describe('Detect potentially date-limited follower exports', () => {
+  const seconds = (date: string) => Date.parse(date) / 1000
+  it('warns about recent followers vs long-term following history', () => {
+    expect(inspectDateCoverage(
+      [seconds('2025-10-28'), seconds('2026-10-25')],
+      [seconds('2014-08-30'), seconds('2026-10-25')], 105, 857,
+    )).toEqual({
+      earliestFollowerDate: '2025-10-28',
+      earliestFollowingDate: '2014-08-30',
+      latestRelationshipDate: '2026-10-25',
+      suspectedLimitedFollowerRange: true,
+    })
+  })
+  it('does not warn when both lists have old relationship records', () => {
+    expect(inspectDateCoverage([seconds('2016-03-01'), seconds('2026-10-25')], [seconds('2014-08-30'), seconds('2026-10-25')], 1250, 821)?.suspectedLimitedFollowerRange).toBe(false)
+  })
+  it('makes no date-based claims when no timestamps exist', () => {
+    expect(inspectDateCoverage([], [], 105, 857)).toBeUndefined()
+  })
+  it('extracts timestamp metadata from synthetic JSON ZIP entries', async () => {
+    const zip = new JSZip()
+    const record = (name: string, date: string) => ({ title: name, string_list_data: [{ value: name, timestamp: seconds(date) }] })
+    zip.file('connections/followers_and_following/followers_1.json',
+      JSON.stringify([record('recent.one', '2025-10-28'), record('recent.two', '2026-10-25')]))
+    zip.file('connections/followers_and_following/following.json',
+      JSON.stringify({ relationships_following: [
+        record('older.one', '2014-08-30'), record('newer.two', '2026-10-25'),
+        record('friend.three', '2025-10-25'), record('friend.four', '2024-10-25'), record('friend.five', '2023-10-25'),
+      ] }))
+    const file = new File([await zip.generateAsync({type: 'blob'})], 'instagram-export.zip')
+    const snapshot = await parseInstagramZip(file)
+    expect(snapshot.dateCoverage?.suspectedLimitedFollowerRange).toBe(true)
+    expect(snapshot.dateCoverage?.earliestFollowerDate).toBe('2025-10-28')
+    expect(snapshot.followers).toHaveLength(2)
+    expect(snapshot.following).toHaveLength(5)
   })
 })

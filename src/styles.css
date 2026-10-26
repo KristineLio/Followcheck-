@@ -259,3 +259,19 @@ footer{display:flex;justify-content:space-between;border-top:1px solid #ede7ee;p
  .automatic-results-notice,.results-quality-notice{padding:14px;gap:10px}
  .auto-list-card h2{font-size:19px}
 }
+
+/* Alert specifically when relationship timestamps suggest a date-restricted follower export. */
+.limited-export-warning{border:1px solid #edb4bd;border-radius:18px;background:linear-gradient(120deg,#fff4f4,#fff9f4);padding:22px;margin:2px 0 18px;box-shadow:0 6px 25px #78213808;color:#8e3445}
+.limited-export-heading{display:flex;align-items:flex-start;gap:12px}
+.limited-export-heading>svg{flex:none;margin-top:2px;color:#a94e66}
+.limited-export-heading strong{font-size:16px;line-height:1.35}
+.limited-export-heading p{font-size:12px;line-height:1.7;margin:8px 0}
+.limited-export-heading p strong,.limited-export-heading p b{font-size:inherit}
+.limited-export-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:15px}
+.limited-export-actions .secondary-button{background:white;color:#8b4560}
+@media(max-width:760px){
+ .limited-export-warning{padding:16px}
+ .limited-export-heading strong{font-size:15px}
+ .limited-export-actions{flex-direction:column;align-items:stretch}
+ .limited-export-actions .secondary-button{justify-content:center}
+}
