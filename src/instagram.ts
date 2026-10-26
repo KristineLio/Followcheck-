@@ -10,8 +10,16 @@ export type Snapshot = {
   checkedFollowerCount?: number
   checkedFollowingCount?: number
   archiveIdentity?: string
+  dateCoverage?: DateCoverage
   followers: string[]
   following: string[]
+}
+
+export type DateCoverage = {
+  earliestFollowerDate?: string
+  earliestFollowingDate?: string
+  latestRelationshipDate?: string
+  suspectedLimitedFollowerRange: boolean
 }
 
 export type FollowerAnalysis = {
@@ -86,6 +94,55 @@ export function extractHtmlUsernames(html: string): string[] {
   return [...values].sort((a, b) => a.localeCompare(b))
 }
 
+
+const SECONDS_PER_DAY = 86400
+
+function relationshipTimestamps(data: unknown): number[] {
+  const records: unknown[] = Array.isArray(data)
+    ? data
+    : data && typeof data === 'object'
+      ? Object.values(data).filter(Array.isArray).flat()
+      : []
+  const result: number[] = []
+  for (const record of records) {
+    if (!record || typeof record !== 'object') continue
+    const embedded = (record as Record<string, unknown>).string_list_data
+    if (!Array.isArray(embedded)) continue
+    for (const item of embedded) {
+      if (!item || typeof item !== 'object') continue
+      const value = (item as Record<string, unknown>).timestamp
+      // Exported follower timestamps are Unix seconds.
+      if (typeof value === 'number' && Number.isInteger(value) && value > 946684800 && value < 4102444800) {
+        result.push(value)
+      }
+    }
+  }
+  return result
+}
+
+export function inspectDateCoverage(
+  followerTimes: number[], followingTimes: number[], followerCount: number, followingCount: number,
+): DateCoverage | undefined {
+  const firstFollower = followerTimes.length ? Math.min(...followerTimes) : undefined
+  const firstFollowing = followingTimes.length ? Math.min(...followingTimes) : undefined
+  if (firstFollower === undefined && firstFollowing === undefined) return undefined
+  const latestRelationship = Math.max(...followerTimes, ...followingTimes)
+  // This is a warning heuristic, not proof of export settings. It catches the
+  // real-world pattern where following history goes back many years, but a much
+  // smaller followers file contains only about a year of recent records.
+  const suspect = firstFollower !== undefined && firstFollowing !== undefined &&
+    latestRelationship - firstFollower <= 400 * SECONDS_PER_DAY &&
+    firstFollower - firstFollowing >= 2 * 365 * SECONDS_PER_DAY &&
+    followerCount * 2 < followingCount
+  const date = (timestamp: number | undefined) => timestamp === undefined ? undefined : new Date(timestamp * 1000).toISOString().slice(0, 10)
+  return {
+    earliestFollowerDate: date(firstFollower),
+    earliestFollowingDate: date(firstFollowing),
+    latestRelationshipDate: date(latestRelationship),
+    suspectedLimitedFollowerRange: suspect,
+  }
+}
+
 type RelationshipKind = 'followers' | 'following'
 type ExportFormat = 'HTML' | 'JSON'
 
@@ -130,6 +187,8 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
   const followers = new Set<string>()
   const following = new Set<string>()
   const sourceFiles: NonNullable<Snapshot['sourceFiles']> = []
+  const followerTimes: number[] = []
+  const followingTimes: number[] = []
 
   for (const { entry, match } of identified) {
     if (match.format !== format) continue
@@ -153,7 +212,11 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
     let names: string[]
     if (format === 'JSON') {
       try {
-        names = extractUsernames(JSON.parse(raw) as unknown)
+        const data: unknown = JSON.parse(raw)
+        names = extractUsernames(data)
+        const times = relationshipTimestamps(data)
+        if (match.kind === 'followers') followerTimes.push(...times)
+        else followingTimes.push(...times)
       } catch {
         throw new Error(entry.name + ' is not valid JSON. Request a fresh Instagram export.')
       }
@@ -177,6 +240,7 @@ export async function parseInstagramZip(file: File): Promise<Snapshot> {
     sourceName: file.name,
     format,
     sourceFiles,
+    dateCoverage: format === 'JSON' ? inspectDateCoverage(followerTimes, followingTimes, followers.size, following.size) : undefined,
     archiveIdentity: [file.name, file.size, file.lastModified].join(':'),
     followers: [...followers].sort(),
     following: [...following].sort(),
