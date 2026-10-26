@@ -8,6 +8,7 @@ export type Snapshot = {
   format?: 'HTML' | 'JSON'
   sourceFiles?: Array<{ name: string; kind: 'followers' | 'following'; parsed: number }>
   checkedFollowerCount?: number
+  checkedFollowingCount?: number
   archiveIdentity?: string
   followers: string[]
   following: string[]

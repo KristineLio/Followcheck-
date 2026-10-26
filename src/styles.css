@@ -181,3 +181,29 @@ footer{display:flex;justify-content:space-between;border-top:1px solid #ede7ee;p
  .count-check-controls input{max-width:none;width:100%}
  .count-check-controls button{width:100%}
 }
+
+/* Dedicated follow-back section and two-sided verification */
+.followback-section{margin-top:26px}
+.followback-desc{font-size:13px;line-height:1.65;color:#82788a;margin:-8px 0 16px}
+.followback-count{border-radius:12px;background:#f8eef9;padding:14px 16px;color:#7d5c89;font-size:12px;margin:18px 0}
+.followback-count strong{font-size:22px;color:#ac70bd;margin-right:5px}
+.followback-locked{text-align:center;background:linear-gradient(140deg,#fff5fa,#f6effe);border-radius:17px;padding:32px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.followback-locked>svg{color:#b477cc}
+.followback-locked h3{margin:0;font-size:18px}
+.followback-locked p{font-size:13px;color:#756d7d;max-width:510px;line-height:1.7;margin:0}
+.followback-locked .secondary-button{justify-content:center}
+.count-check-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:540px}
+.count-check-inputs label{display:flex;flex-direction:column;gap:7px}
+.count-check-inputs input{max-width:none;width:100%}
+.verify-button{margin-top:10px;justify-content:center;align-self:flex-start}
+.bottom-nav button{max-width:180px;text-align:center}
+@media(max-width:760px){
+  .count-check-inputs{grid-template-columns:1fr;gap:12px}
+  .verify-button{width:100%}
+  .bottom-nav{gap:2px}
+  .bottom-nav button{padding:6px 4px;min-width:0;flex:1;max-width:none;font-size:9px}
+  .bottom-nav button span{max-width:76px;line-height:1.15}
+  .followback-section{margin-top:15px}
+  .followback-locked{padding:25px 14px}
+  .followback-locked .primary-button{width:100%}
+}

@@ -54,3 +54,7 @@ The UI and follower analysis work without a backend. A static host can deploy th
 **Do not rely on the mutual/non-follower count until the ZIP follower total agrees with Instagram.** FollowCheck now shows a follower-total verification form and a local-only list of source files and extracted record counts. If the entered live follower count differs from the export count, derived comparisons are hidden. Small differences can reflect the time between export and verification, but large differences usually require checking the export account, date range, and missing files. No external Instagram requests are made.
 
 Re-importing an *identical original ZIP* does not create a new growth snapshot. Growth comparisons require two different exports whose follower totals have been checked. Older snapshots do not contain file-level diagnostics and should be re-imported to inspect their source files.
+
+## Don't follow me back section
+
+A dedicated, searchable mobile and desktop tab. Follower lists only appear when **both** followers and following counts extracted from the ZIP match the manually entered Instagram totals; otherwise it prompts re-import rather than displaying misleading usernames. Even matched counts are not proof of freshness or completeness.
