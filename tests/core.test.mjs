@@ -49,3 +49,17 @@ test('CSV includes a header and safely quotes content',()=>{
  assert.ok(csv.startsWith('\ufeff"username","account","category"\r\n'));
  assert.ok(csv.includes('"alpha.test","demo-account-a","Mutual"'));
 });
+
+test('complete report exports summary totals, relationships and changes safely',async()=>{
+ const {makeFullReportCsv}=await import('../src/instagram.js');
+ const {current,previous}=makeSampleData();
+ const d=compareSets(current,previous);
+ const report=makeFullReportCsv(d,current.account,current,previous);
+ assert.ok(report.startsWith('\ufeff"row_type","category","username","count"'));
+ assert.ok(report.includes('"summary","Don\'t follow me back","","186"'));
+ assert.ok(report.includes('"summary","New since previous export","","34"'));
+ assert.ok(report.includes('"summary","Missing since previous export","","12"'));
+ assert.ok(report.includes('"summary","Net followers","","22"'));
+ assert.ok(report.includes('"account","Mutual","friend.0001"'));
+ assert.ok(!report.includes('undefined'));
+});

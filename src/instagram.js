@@ -127,3 +127,29 @@ export function makeCsv(users, account, label) {
   const escape = value => { const text = String(value); const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text; return '"' + safe.replace(/"/g, '""') + '"'; };
   return '\ufeff' + [ ['username','account','category'], ...users.map(user => [user, account, label]) ].map(row => row.map(escape).join(',')).join('\r\n') + '\r\n';
 }
+
+
+/** Consolidated, formula-safe CSV: summary totals plus all important relationship/change lists. */
+export function makeFullReportCsv(insights, account, current, previous = null) {
+  const escape = value => {
+    const v = String(value ?? '');
+    const protectedValue = /^[=+\-@\t\r]/.test(v) ? "'" + v : v;
+    return '"' + protectedValue.replace(/"/g, '""') + '"';
+  };
+  const at = date => date ? String(date) : '';
+  const groups = [
+    ['followers', 'All followers'],
+    ['following', 'All following'],
+    ['mutual', 'Mutual'],
+    ['notFollowingBack', "Don't follow me back"],
+    ['iDontFollowBack', "I don't follow back"],
+  ];
+  if (previous) groups.push(['gained', 'New since previous export'], ['missing', 'Missing since previous export']);
+  const rows = [['row_type', 'category', 'username', 'count', 'account', 'current_import', 'previous_import']];
+  for (const [key, label] of groups) {
+    rows.push(['summary', label, '', insights[key].length, account, at(current.importedAt), at(previous?.importedAt)]);
+    for (const username of insights[key]) rows.push(['account', label, username, '', account, at(current.importedAt), at(previous?.importedAt)]);
+  }
+  if (previous) rows.push(['summary', 'Net followers', '', insights.net, account, at(current.importedAt), at(previous.importedAt)]);
+  return '\ufeff' + rows.map(row => row.map(escape).join(',')).join('\r\n') + '\r\n';
+}

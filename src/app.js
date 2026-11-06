@@ -1,4 +1,4 @@
-import { compareSets, makeCsv, makeSampleData, parseInstagramZip } from './instagram.js';
+import { compareSets, makeCsv, makeFullReportCsv, makeSampleData, parseInstagramZip } from './instagram.js';
 import { allSnapshots, saveSnapshot, deleteSnapshot, clearSnapshots } from './storage.js';
 
 const $ = selector => document.querySelector(selector);
@@ -22,7 +22,7 @@ const cats = {
 };
 const state = {
   snapshots:[], account:'', current:null, previous:null, demo:false,
-  insights:null, category:'notFollowingBack', search:'', limit:75,
+  insights:null, category:'notFollowingBack', search:'', limit:12,
 };
 
 function say(message, kind='info') {
@@ -55,10 +55,11 @@ function forAccount(account) {
   state.current = list[0] || null;
   state.previous = list[1] || null;
   state.account = account;
+  if (account) $('#fc-account').value = account; // Keep the selected account label for follow-up imports.
   state.demo = false;
   state.category = 'notFollowingBack';
   state.search = '';
-  state.limit = 75;
+  state.limit = 12;
   $('#fc-search').value = '';
   render();
 }
@@ -70,11 +71,20 @@ function launchDemo() {
   state.account = current.account;
   state.category = 'notFollowingBack';
   state.search = '';
-  state.limit = 75;
+  state.limit = 12;
   $('#fc-search').value = '';
   say('You are viewing fictional sample data. No Instagram account is connected.', 'info');
   render();
-  $('#analyze').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  $('#fc-dashboard').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+}
+function focusUpload() {
+  $('#fc-form').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center' });
+  $('#fc-account').focus({ preventScroll:true });
+}
+function comparisonSummary() {
+  const x = state.insights;
+  if (state.previous) return `Comparing two ${state.demo ? 'fictional ' : ''}snapshots for @${state.account}: ${x.gained.length} new, ${x.missing.length} missing, ${x.net >= 0 ? '+' : ''}${x.net} net followers. Missing does not prove an unfollow.`;
+  return `One snapshot for @${state.account}. Import a second ZIP using the same account label to see new and missing followers.`;
 }
 function renderMetrics() {
   const data = state.insights;
@@ -119,17 +129,19 @@ function renderList() {
     list.append(link);
   }
   if (!names.length) list.append(el('p','fc-empty','No usernames in this category match your search.'));
+  $('#fc-list-note').textContent = `Showing ${Math.min(names.length, state.limit).toLocaleString()} of ${names.length.toLocaleString()} results. CSV exports include every matching username, not just the ones visible.`;
   const more = $('#fc-more');
   more.hidden = names.length <= state.limit;
   more.textContent = `Show more (${Math.max(names.length - state.limit, 0).toLocaleString()} remaining)`;
   $('#fc-download').disabled = !names.length;
-  $('#fc-download').textContent = `Export ${names.length.toLocaleString()} ${state.search ? 'filtered' : ''} usernames as CSV`;
+  $('#fc-download').textContent = `Export ${names.length.toLocaleString()} ${state.search ? 'filtered ' : ''}as CSV`;
 }
 function renderDiagnostics() {
   const current = state.current;
   const info = $('#fc-diagnostics'); info.replaceChildren();
   const warning = $('#fc-warning'); warning.hidden = false;
   if (state.demo) {
+    warning.classList.remove('danger');
     warning.textContent = 'Fictional demo: numbers come from generated follower and following sets. They do not represent a real Instagram account.';
   } else if (current.coverage?.suspicious) {
     warning.textContent = `Possible incomplete Instagram export: follower dates begin ${current.coverage.earliestFollower}, but following records begin ${current.coverage.earliestFollowing}. The follow-back counts might be substantially wrong. Request an All time export before taking action.`;
@@ -177,18 +189,22 @@ function renderHistory() {
   $('#fc-missing').textContent = state.previous ? `−${state.insights.missing.length} missing` : '—';
   $('#fc-net').textContent = state.previous ? `${state.insights.net >= 0 ? '+' : ''}${state.insights.net} net` : 'Not enough history';
   $('#fc-clear').hidden = state.demo || !state.snapshots.length;
+  $('#fc-next-snapshot').hidden = state.demo || Boolean(state.previous);
 }
 function render() {
   selectAccountOptions();
   const hasData = Boolean(state.current);
   $('#fc-dashboard').hidden = !hasData;
   $('#fc-blank').hidden = hasData;
+  $('#fc-demo-guide').hidden = !state.demo;
   $('#fc-exit-demo').hidden = !state.demo;
   $('#fc-mode').textContent = state.demo ? 'FICTIONAL SAMPLE DATA' : (hasData ? 'YOUR LOCAL INSTAGRAM EXPORT' : 'READY TO ANALYZE');
   if (!hasData) return;
   state.insights = compareSets(state.current, state.previous);
   $('#fc-current-account').textContent = '@' + state.current.account;
-  renderMetrics(); renderList(); renderDiagnostics(); renderHistory();
+  renderMetrics();
+  $('#fc-comparison-summary').textContent = comparisonSummary();
+  renderList(); renderDiagnostics(); renderHistory();
 }
 async function reload(preferred='') {
   state.snapshots = await allSnapshots();
@@ -225,15 +241,27 @@ async function handleImport(event) {
 $('#fc-form').addEventListener('submit', handleImport);
 $('#fc-account-select').addEventListener('change', e=>forAccount(e.target.value));
 $('#fc-demo').addEventListener('click',launchDemo);
+$('#fc-quick-demo').addEventListener('click',launchDemo);
+$('#fc-next-snapshot').addEventListener('click',focusUpload);
+for (const link of document.querySelectorAll('[data-followcheck-upload]')) link.addEventListener('click',event=>{event.preventDefault();focusUpload();});
+for (const button of document.querySelectorAll('[data-fc-tour]')) button.addEventListener('click',()=>{
+  const action=button.dataset.fcTour;
+  if (!state.demo) return;
+  state.search='';$('#fc-search').value='';state.limit=12;
+  state.category=action==='changes'?'gained':'notFollowingBack';
+  renderList();
+  if (action==='export') { $('#fc-download').click();return; }
+  (action==='changes' ? $('#fc-history-title') : $('#fc-categories')).scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
+});
 for(const a of document.querySelectorAll('[data-followcheck-demo]')) a.addEventListener('click',event=>{ event.preventDefault(); launchDemo(); });
 $('#fc-exit-demo').addEventListener('click',async()=>{
   state.demo = false;
   await reload();
   say('Sample exited. Upload your own ZIP or choose an existing local account.','info');
 });
-$('#fc-search').addEventListener('input',event=>{state.search=event.target.value.trim().toLowerCase().replace(/^@/,'');state.limit=75;renderList();});
-for(const button of document.querySelectorAll('[data-fc-category]')) button.addEventListener('click',()=>{state.category=button.dataset.fcCategory;state.limit=75;renderList();});
-$('#fc-more').addEventListener('click',()=>{state.limit+=75;renderList();});
+$('#fc-search').addEventListener('input',event=>{state.search=event.target.value.trim().toLowerCase().replace(/^@/,'');state.limit=12;renderList();});
+for(const button of document.querySelectorAll('[data-fc-category]')) button.addEventListener('click',()=>{state.category=button.dataset.fcCategory;state.limit=12;renderList();});
+$('#fc-more').addEventListener('click',()=>{state.limit+=24;renderList();});
 $('#fc-download').addEventListener('click',()=>{
   if (!state.insights) return;
   const names = state.insights[state.category].filter(s=>s.includes(state.search));
@@ -244,12 +272,22 @@ $('#fc-download').addEventListener('click',()=>{
   document.body.append(link); link.click(); link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);
 });
+$('#fc-full-report').addEventListener('click',()=>{
+  if (!state.current || !state.insights) return;
+  const csv=makeFullReportCsv(state.insights,state.account,state.current,state.previous);
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link=el('a');link.href=url;link.download=`followcheck-${state.account}-full-report-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+});
 $('#fc-clear').addEventListener('click',async()=>{
   if (!window.confirm('Permanently delete ALL FollowCheck snapshots stored in this browser?')) return;
   try { await clearSnapshots(); await reload(); say('All local FollowCheck history has been deleted.','success'); }
   catch { say('Could not clear local history.','error'); }
 });
 
-reload().then(()=>say('Ready. Your ZIP stays in your browser.')).catch(()=>{
+reload().then(()=>{
+  say('Ready. Your ZIP stays in your browser.');
+  if (new URLSearchParams(location.search).get('demo')==='1') launchDemo();
+}).catch(()=>{
   state.current=null;render();say('Local history is unavailable. Enable browser storage and reload to save snapshots.','error');
 });

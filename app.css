@@ -73,3 +73,32 @@
 .fc-empty{padding:20px;font-size:13px;color:#6d7f74}
 @media(max-width:850px){.fc-form{grid-template-columns:1fr 1fr}.fc-form>button{grid-column:1/-1}.fc-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.fc-secondary{grid-template-columns:1fr}}
 @media(max-width:540px){.workspace-section{padding-block:65px}.fc-shell{margin-top:22px;border-radius:18px}.fc-shell-head,.fc-form,.fc-dashboard,.fc-blank{padding:20px}.fc-form{grid-template-columns:1fr}.fc-form>button{grid-column:auto}.fc-dashboard-head h4{font-size:22px}.fc-metrics{gap:8px}.fc-metric{padding:14px}.fc-metric-desc{font-size:10px}.fc-account-list{grid-template-columns:1fr}.fc-blank{flex-direction:column;align-items:stretch}.fc-account-tools{width:100%}.fc-dashboard-head select{max-width:100%}.fc-list-controls .fc-button{width:100%}.fc-profile-arrow{font-size:11px}}
+
+/* Grand Prize polish: a single working flow, clearly framed and explorable. */
+.fc-quickstart{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 25px}
+.fc-start-tile{display:flex;align-items:center;gap:16px;min-height:94px;text-align:left;padding:20px 22px;background:#e4f7ee;border:1px solid #c3e6d5;border-radius:17px;color:#173a2d;text-decoration:none;cursor:pointer;font:inherit}
+.fc-start-upload{background:#fff;border-color:#dce9e4}
+.fc-start-tile:hover,.fc-start-tile:focus-visible{transform:translateY(-2px);box-shadow:0 12px 30px rgba(16,54,41,.085)}
+.fc-start-tile>span:nth-child(2){display:flex;flex-direction:column;gap:5px;flex:1}
+.fc-start-tile strong{font-size:16px;letter-spacing:-.03em}
+.fc-start-tile small{font-size:11px;color:#536d60;line-height:1.5}
+.fc-start-tile>span:last-child{font-weight:800}
+.fc-start-icon{width:43px;height:43px;border-radius:12px;display:grid;place-items:center;flex:0 0 43px;font-size:24px;background:#c0eed8;color:#174e38}
+.fc-start-upload .fc-start-icon{background:#f0f4fa;color:#304867}
+.fc-demo-guide{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:16px 18px;border-radius:14px;background:#17392f;color:#f4fbf7;margin-bottom:20px}
+.fc-demo-guide-copy{display:flex;flex-direction:column;gap:5px}
+.fc-demo-guide-copy strong{font-size:13px}
+.fc-demo-guide-copy span{font-size:11px;color:#d1e7dc;line-height:1.55}
+.fc-demo-guide-buttons{display:flex;flex-wrap:wrap;gap:7px}
+.fc-demo-guide-buttons button{border:1px solid #a3d9be;border-radius:20px;color:#e3fff2;background:#285744;min-height:37px;padding:8px 12px;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.fc-demo-guide-buttons button:hover{background:#34785e}
+.fc-comparison-summary{padding:12px 16px;margin:-3px 0 20px;border:1px solid #c9e6d4;border-radius:12px;background:#eaf8ef;color:#23573d;font-size:12px;line-height:1.6;font-weight:650}
+.fc-export-actions{display:flex;gap:9px;flex-wrap:wrap;margin-left:auto}
+.fc-quickstart+.fc-shell{margin-top:0}
+.fc-dashboard{scroll-margin-top:20px}
+.fc-history-stats,.fc-categories,#fc-form,#fc-history-title{scroll-margin-top:38px}
+.fc-history-note+#fc-next-snapshot{margin-bottom:14px}
+@media(max-width:760px){.fc-quickstart{grid-template-columns:1fr}.fc-start-tile{min-height:78px}.fc-demo-guide{align-items:stretch}.fc-demo-guide-buttons{width:100%}.fc-demo-guide-buttons button{flex:1}.fc-export-actions{width:100%}.fc-export-actions .fc-button{flex:1}}
+@media(max-width:540px){.fc-quickstart{gap:9px;margin-bottom:18px}.fc-start-tile{padding:14px 15px}.fc-start-tile strong{font-size:14px}.fc-start-icon{width:36px;height:36px;flex-basis:36px}.fc-demo-guide-buttons{display:grid;grid-template-columns:1fr}.fc-export-actions{flex-direction:column}.fc-export-actions .fc-button{width:100%}}
+
+.fc-list-note{font-size:11px;color:#607b6b;margin:0 0 13px;line-height:1.5}

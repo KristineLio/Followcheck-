@@ -6,7 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#0d1824">
-  <meta name="description" content="FollowCheck gives you a clear picture of your Instagram connections from your own data exports, without a login or subscription.">
+  <meta name="description" content="Find who does not follow you back, explore changes across Instagram exports, and download your follower comparison as CSV. Private, free and no Instagram password.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="FollowCheck — Your circle. Clearly.">
+  <meta property="og:description" content="Who follows back? What changed? See real results from your Instagram export. Free, private, no login.">
+  <meta name="twitter:card" content="summary">
   <title>FollowCheck — Your circle. Clearly.</title>
   <link rel="stylesheet" href="app.css">
   <style>
@@ -28,9 +32,9 @@
         <span>followcheck<span class="brand-period">.</span></span>
       </a>
       <nav class="header-links" aria-label="Site navigation">
-        <a href="#demo">Demo</a>
+        <a href="#analyze" data-followcheck-demo>Live demo</a>
         <a href="#how-it-works">How it works</a>
-        <a class="header-cta" href="#analyze">Explore the app <span aria-hidden="true">↗</span></a>
+        <a class="header-cta" href="#analyze" data-followcheck-upload>Analyze your ZIP <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
   </header>
@@ -45,8 +49,8 @@
           <h1 id="hero-heading">Your circle.<br><span>Clearly.</span></h1>
           <p class="hero-description">See who follows back, who's in your circle, and how your connections change over time. No Instagram password. No subscription. Just your own data.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#analyze" data-followcheck-demo>Explore instant demo <span aria-hidden="true">↗</span></a>
-            <a class="button button-ghost" href="#how-it-works">How it works <span aria-hidden="true">↓</span></a>
+            <a class="button button-primary" href="#analyze" data-followcheck-demo>Try the working demo <span aria-hidden="true">↗</span></a>
+            <a class="button button-ghost" href="#analyze" data-followcheck-upload>Analyze my Instagram ZIP <span aria-hidden="true">↓</span></a>
           </div>
           <div class="trust-points"><span><span aria-hidden="true">✓</span> No login</span><span><span aria-hidden="true">✓</span> No scraping</span><span><span aria-hidden="true">✓</span> No monthly fees</span></div>
         </div>
@@ -65,64 +69,13 @@
       </div>
     </section>
 
-    <div class="proof-strip"><div class="shell proof-inner"><span class="proof-symbol" aria-hidden="true">✳</span><p>Built around <strong>what matters:</strong> trustworthy results, thoughtful privacy, and zero subscription fees.</p><a href="#privacy">Our approach <span aria-hidden="true">↗</span></a></div></div>
-
-    <section class="section demo-section" id="demo" aria-labelledby="demo-heading">
-      <div class="shell">
-        <div class="section-topline"><span class="eyebrow section-eyebrow">01 / EXPLORE FOLLOWCHECK</span><span class="section-aside">Try before you upload anything</span></div>
-        <div class="section-heading"><div><h2 id="demo-heading">A little clarity goes <em>a long way.</em></h2><p>Explore an interactive sample dashboard. All numbers and account names below are fictional, and the tabs work using HTML and CSS only.</p></div><span class="demo-sticker">NO SIGN-UP<br>NEEDED <span aria-hidden="true">↗</span></span></div>
-        <div class="workspace">
-          <div class="workspace-top"><div class="workspace-heading"><span class="workspace-symbol" aria-hidden="true">◉</span><div><strong>Circle intelligence</strong><small>Example account · @alex.sample</small></div></div><span class="demo-badge"><span class="live-dot" aria-hidden="true"></span> DEMO DATA</span></div>
-          <div class="workspace-body">
-            <div class="metrics">
-              <div class="metric"><span class="metric-label">Followers</span><strong>1,250</strong><span class="metric-bottom green">↗ +34 compared with sample snapshot</span></div>
-              <div class="metric"><span class="metric-label">Following</span><strong>840</strong><span class="metric-bottom">People in your following list</span></div>
-              <div class="metric metric-lilac"><span class="metric-label">Mutual circle</span><strong>654</strong><span class="metric-bottom">Appearing in both export lists</span></div>
-              <div class="metric metric-peach"><span class="metric-label">Don't follow back</span><strong>186</strong><span class="metric-bottom">Absent from exported followers</span></div>
-            </div>
-            <div class="demo-tabs">
-              <input class="visually-hidden demo-selector" type="radio" id="tab-overview" name="demo-tab" checked>
-              <input class="visually-hidden demo-selector" type="radio" id="tab-nonmutual" name="demo-tab">
-              <input class="visually-hidden demo-selector" type="radio" id="tab-mutual" name="demo-tab">
-              <input class="visually-hidden demo-selector" type="radio" id="tab-history" name="demo-tab">
-              <div class="tab-labels" role="group" aria-label="Choose a sample dashboard view"><label for="tab-overview">Overview</label><label for="tab-nonmutual">Don't follow back <span>186</span></label><label for="tab-mutual">Mutuals <span>654</span></label><label for="tab-history">History</label></div>
-              <div class="tab-content overview-panel">
-                <div class="panel-split">
-                  <div class="surface panel-main"><div class="panel-title"><div><span class="tiny-label">FOLLOW-BACK SNAPSHOT</span><h3>Know where you stand.</h3></div><span class="small-pill">Example</span></div>
-                    <div class="proportion-row"><span>Mutual connections</span><strong>654</strong></div>
-                    <div class="progress-track"><div class="progress-fill progress-mutual" style="width:77.86%"></div></div>
-                    <div class="proportion-row"><span>Don't follow back</span><strong>186</strong></div>
-                    <div class="progress-track"><div class="progress-fill progress-oneway" style="width:22.14%"></div></div>
-                    <p class="support-note">Of the 840 accounts this example follows, 654 also appear in its followers list. That's a 77.9% mutual-follow rate.</p>
-                  </div>
-                  <div class="surface panel-side"><span class="tiny-label">SINCE THE LAST SAMPLE EXPORT</span><div class="change-stats"><div><span class="change-arrow positive" aria-hidden="true">↗</span><span>New in followers list</span><strong class="green">+34</strong></div><div><span class="change-arrow negative" aria-hidden="true">↘</span><span>Missing from follower list</span><strong class="red">−12</strong></div></div><p class="support-note">Missing from a later export does not prove someone deliberately unfollowed you.</p></div>
-                </div>
-              </div>
-              <div class="tab-content nonmutual-panel">
-                <div class="list-heading"><div><span class="tiny-label">ONE-WAY FOLLOWING</span><h3>Don't follow me back</h3><p>Accounts followed by the example account but absent from its follower export.</p></div><span class="total-pill">186 total</span></div>
-                <div class="sample-list"><div class="account"><span class="avatar av-peach" aria-hidden="true">MJ</span><div><strong>@mila.sample</strong><small>Example account</small></div><span class="relationship-tag tag-peach">Not mutual</span></div><div class="account"><span class="avatar av-lavender" aria-hidden="true">KP</span><div><strong>@kai.sample</strong><small>Example account</small></div><span class="relationship-tag tag-peach">Not mutual</span></div><div class="account"><span class="avatar av-mint" aria-hidden="true">DR</span><div><strong>@drew.sample</strong><small>Example account</small></div><span class="relationship-tag tag-peach">Not mutual</span></div><div class="sample-more">Showing 3 of 186 fictional examples. The working analyzer below lets you search and export real results.</div></div>
-              </div>
-              <div class="tab-content mutual-panel">
-                <div class="list-heading"><div><span class="tiny-label">YOUR TWO-WAY CIRCLE</span><h3>People in both lists</h3><p>These fictional accounts appear in both followers and following data.</p></div><span class="total-pill">654 total</span></div>
-                <div class="sample-list"><div class="account"><span class="avatar av-lavender" aria-hidden="true">ST</span><div><strong>@sasha.sample</strong><small>Example account</small></div><span class="relationship-tag tag-mint">Mutual</span></div><div class="account"><span class="avatar av-mint" aria-hidden="true">AL</span><div><strong>@alexa.sample</strong><small>Example account</small></div><span class="relationship-tag tag-mint">Mutual</span></div><div class="account"><span class="avatar av-peach" aria-hidden="true">CM</span><div><strong>@charlie.sample</strong><small>Example account</small></div><span class="relationship-tag tag-mint">Mutual</span></div><div class="sample-more">Showing 3 of 654 fictional examples.</div></div>
-              </div>
-              <div class="tab-content history-panel"><div class="list-heading"><div><span class="tiny-label">CHANGES BETWEEN EXPORTS</span><h3>Your circle over time</h3><p>Illustrative snapshots for a single fictional account.</p></div><span class="total-pill">2 snapshots</span></div>
-                <div class="history-chart" role="img" aria-label="Sample follower counts increased from 1228 to 1250, with 34 new and 12 missing accounts in the latest snapshot."><div class="chart-column"><span class="bar-label">1,228</span><div class="bar" style="height:73%"></div><small>Previous</small></div><div class="chart-column"><span class="bar-label">1,250</span><div class="bar current-bar" style="height:88%"></div><small>Current</small></div></div>
-                <div class="history-summary"><span>34 new in list</span><span>12 missing from list</span><strong>Net +22 followers</strong></div>
-                <p class="support-note">An export is a snapshot, not live Instagram monitoring. Only snapshots from the same account should be compared.</p>
-              </div>
-            </div>
-          </div>
-          <div class="workspace-footer"><span><span aria-hidden="true">◎</span> Fictitious demo data · Not connected to Instagram</span><a href="#import">Analyze your own ZIP now <span aria-hidden="true">↗</span></a></div>
-        </div>
-      </div>
-    </section>
-
+    <div class="proof-strip"><div class="shell proof-inner"><span class="proof-symbol" aria-hidden="true">✳</span><p><strong>The useful part of a paid follower tracker, for free.</strong> FollowMeter Plus is listed at <strong>€5.49/month</strong> in Bulgaria. FollowCheck covers export-based follower lists and history, <em>not</em> live monitoring or story viewers.</p><a href="https://apps.apple.com/bg/app/followmeter-for-instagram/id651309421" target="_blank" rel="noopener noreferrer" aria-label="Verify FollowMeter Plus monthly price on the Bulgarian App Store">Price source ↗</a></div></div>
 
     <section class="section workspace-section" id="analyze" aria-labelledby="fc-title">
       <div class="shell">
-        <div class="section-topline"><span class="eyebrow section-eyebrow">02 / YOUR PRIVATE ANALYZER</span><span class="section-aside">Working with data on your device</span></div>
-        <div class="section-heading"><div><h2 id="fc-title">Your data. <em>Your answers.</em></h2><p>Analyze an Instagram ZIP or try the fully calculated fictional dataset. No login, no subscription, and no file upload to our servers.</p></div></div>
+        <div class="section-topline"><span class="eyebrow section-eyebrow">01 / WORKING ANALYZER</span><span class="section-aside">Real calculations · Private on your device</span></div>
+        <div class="section-heading"><div><h2 id="fc-title">Your data. <em>Your answers.</em></h2><p>Open the live demo in one click, or analyze an Instagram ZIP entirely in your browser. Every count in the workspace below is calculated from follower lists—not decorative mockups.</p></div></div>
+        <div class="fc-quickstart" aria-label="Choose how to start"><button class="fc-start-tile fc-start-demo" type="button" id="fc-quick-demo"><span class="fc-start-icon" aria-hidden="true">✦</span><span><strong>Explore live demo</strong><small>Instant · Fictional data · See results &amp; history</small></span><span aria-hidden="true">↗</span></button><a class="fc-start-tile fc-start-upload" href="#fc-form" data-followcheck-upload><span class="fc-start-icon" aria-hidden="true">↥</span><span><strong>Use my Instagram export</strong><small>Private ZIP analysis · HTML or JSON · No password</small></span><span aria-hidden="true">↗</span></a></div>
         <div class="fc-shell">
           <div class="fc-shell-head"><div><h3>FollowCheck workspace</h3><p>Private, export-based follower analysis · not real-time Instagram monitoring</p></div><span class="fc-tag" id="fc-mode">READY TO ANALYZE</span></div>
           <form class="fc-form" id="fc-form">
@@ -134,10 +87,11 @@
           <p class="fc-status info" role="status" id="fc-status" aria-live="polite"></p>
           <div class="fc-blank" id="fc-blank"><div><strong>See the complete analyzer in seconds</strong><p>Try a fictional account with 1,250 followers, 840 following, relationship filters and two snapshots. All results are computed from demo datasets, not prefilled figures.</p></div><button class="fc-button" type="button" id="fc-demo">Try the working demo ↗</button></div>
           <div class="fc-dashboard" id="fc-dashboard" hidden>
+            <div class="fc-demo-guide" id="fc-demo-guide" hidden aria-label="Explore the fictional demo"><div class="fc-demo-guide-copy"><strong>Real app · Fictional data</strong><span>Try these three actions. All results come from calculated sample data.</span></div><div class="fc-demo-guide-buttons"><button type="button" data-fc-tour="nonmutual">1 · One-way follows</button><button type="button" data-fc-tour="changes">2 · Changes +34 / −12</button><button type="button" data-fc-tour="export">3 · Download CSV</button></div></div>
             <div class="fc-dashboard-head"><div><span class="eyebrow">LOCAL ACCOUNT</span><h4 id="fc-current-account">@your-account</h4></div><div class="fc-account-tools"><label id="fc-account-label" for="fc-account-select" hidden>Switch account</label><select id="fc-account-select" aria-label="Switch saved account" hidden></select><button class="fc-button fc-button-outline" type="button" id="fc-exit-demo" hidden>Exit demo</button></div></div>
-            <div class="fc-metrics" id="fc-metrics"></div>
+            <div class="fc-metrics" id="fc-metrics"></div><div class="fc-comparison-summary" id="fc-comparison-summary" role="status" aria-live="polite"></div>
             <div class="fc-warning" role="status" id="fc-warning"></div>
-            <div class="fc-categories" role="group" aria-label="Choose follower relationship list">
+            <div class="fc-categories" id="fc-categories" role="group" aria-label="Choose follower relationship list">
               <button type="button" class="fc-category active" data-fc-category="notFollowingBack" aria-pressed="true">Don't follow me back <span>0</span></button>
               <button type="button" class="fc-category" data-fc-category="mutual" aria-pressed="false">Mutual <span>0</span></button>
               <button type="button" class="fc-category" data-fc-category="iDontFollowBack" aria-pressed="false">I don't follow back <span>0</span></button>
@@ -147,10 +101,10 @@
               <button type="button" class="fc-category" data-fc-category="missing" aria-pressed="false">Missing <span>0</span></button>
             </div>
             <div class="fc-actions"><h4 id="fc-list-heading">Accounts</h4><input type="search" id="fc-search" aria-label="Search exported usernames" placeholder="Search usernames..." autocomplete="off"></div>
-            <div class="fc-account-list" id="fc-list"></div>
-            <div class="fc-list-controls"><button class="fc-button fc-button-outline" type="button" id="fc-more" hidden>Show more</button><button class="fc-button" type="button" id="fc-download">Export current list as CSV</button></div>
+            <div class="fc-account-list" id="fc-list"></div><p class="fc-list-note" id="fc-list-note"></p>
+            <div class="fc-list-controls"><button class="fc-button fc-button-outline" type="button" id="fc-more" hidden>Show more</button><div class="fc-export-actions"><button class="fc-button fc-button-outline" type="button" id="fc-download">Export current list</button><button class="fc-button" type="button" id="fc-full-report">Download full report · CSV</button></div></div>
             <div class="fc-secondary">
-              <section class="fc-panel" aria-labelledby="fc-history-title"><h4 id="fc-history-title">Snapshot history</h4><div class="fc-history-stats"><span id="fc-gained">—</span><span id="fc-missing">—</span><span id="fc-net">—</span></div><div id="fc-history"></div><p class="fc-history-note">Comparison is restricted to the currently selected account label. Missing from a later export does not prove an unfollow.</p><button class="fc-button fc-button-outline fc-button-danger" type="button" id="fc-clear" hidden>Delete all local history</button></section>
+              <section class="fc-panel" aria-labelledby="fc-history-title"><h4 id="fc-history-title">Snapshot history</h4><div class="fc-history-stats"><span id="fc-gained">—</span><span id="fc-missing">—</span><span id="fc-net">—</span></div><div id="fc-history"></div><p class="fc-history-note">Snapshots are compared only when you reuse the same local account label. That label is not verified against Instagram. Missing names may reflect incomplete exports, renames, deactivations or real changes.</p><button class="fc-button fc-button-outline" type="button" id="fc-next-snapshot" hidden>Import another snapshot from this account ↑</button><button class="fc-button fc-button-outline fc-button-danger" type="button" id="fc-clear" hidden>Delete all local history</button></section>
               <section class="fc-panel" aria-labelledby="fc-diag-title"><h4 id="fc-diag-title">Import diagnostics & trust</h4><div id="fc-diagnostics"></div><p>Real imports are processed on-device, without Instagram sign-in. HTML exports may not include timestamps to independently verify their date coverage.</p></section>
             </div>
           </div>
@@ -167,7 +121,7 @@
 
     <section class="section privacy-section" id="privacy" aria-labelledby="privacy-heading"><div class="shell privacy-layout"><div class="privacy-graphic" aria-hidden="true"><span class="privacy-ring privacy-ring-one"></span><span class="privacy-ring privacy-ring-two"></span><span class="privacy-lock">◎</span><span class="privacy-float">YOUR DATA</span></div><div class="privacy-copy"><span class="eyebrow privacy-eyebrow">PRIVACY IS THE FEATURE</span><h2 id="privacy-heading">Your Instagram password? <em>Keep it.</em></h2><p>A follower comparison should not require surrendering your credentials. Our approach uses your own Instagram exports instead of requesting a username/password or scraping your account.</p><div class="privacy-checks"><span>✓ No account login required</span><span>✓ No automated unfollowing</span><span>✓ Honest export-based results</span><span>✓ Designed for local analysis</span></div><p class="fine-print">FollowCheck processes files locally in your browser and saves history to browser storage. Inspect Network requests if you want to verify that your follower lists are not transmitted.</p></div></div></section>
 
-    <section class="section import-action-section" id="import" aria-labelledby="import-heading"><div class="shell"><div class="import-action"><span class="eyebrow">READY FOR YOUR OWN INSIGHTS?</span><h2 id="import-heading">Clearer connections.<br><em>Zero subscription.</em></h2><p>Explore the sample today. Upload your Instagram export and get results privately in your browser.</p><div class="import-buttons"><a class="button button-primary" href="#analyze" data-followcheck-demo>Try the interactive demo <span aria-hidden="true">↗</span></a><a class="button button-dark-outline" href="#analyze">Analyze my Instagram export <span aria-hidden="true">↗</span></a></div><div class="prototype-disclosure" role="note"><strong>Not affiliated with Instagram.</strong> The sample above is fictional. Real results depend on the completeness of your exported files; missing accounts are not proof of intentional unfollowing.</div></div></div></section>
+    <section class="section import-action-section" id="import" aria-labelledby="import-heading"><div class="shell"><div class="import-action"><span class="eyebrow">READY FOR YOUR OWN INSIGHTS?</span><h2 id="import-heading">Clearer connections.<br><em>Zero subscription.</em></h2><p>Try the working example now. Or upload your Instagram ZIP to get private results and download a complete relationship report.</p><div class="import-buttons"><a class="button button-primary" href="#analyze" data-followcheck-demo>Try the interactive demo <span aria-hidden="true">↗</span></a><a class="button button-dark-outline" href="#analyze" data-followcheck-upload>Analyze my Instagram export <span aria-hidden="true">↗</span></a></div><div class="prototype-disclosure" role="note"><strong>Not affiliated with Instagram.</strong> The sample above is fictional. Real results depend on the completeness of your exported files; missing accounts are not proof of intentional unfollowing.</div></div></div></section>
   </main>
   <footer class="site-footer"><div class="shell footer-inner"><a class="brand footer-brand" href="#top"><span class="brand-icon" aria-hidden="true"><span></span><span></span></span><span>followcheck<span class="brand-period">.</span></span></a><p>Your circle. Clearly. · Independent project; not affiliated with Instagram or Meta.</p><a href="#top">Back to top ↑</a></div></footer>
   <script type="module" src="src/app.js"></script>

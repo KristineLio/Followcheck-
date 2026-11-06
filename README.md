@@ -54,3 +54,17 @@ The browser test expects a locally running server. Production-device Safari and 
 `vibeflow-grand-prize` is the standalone HTML/CSS + vanilla JavaScript edition. The original React/TypeScript work in `feat/mobile-personal-v1` and `main` are intentionally untouched. Import or refresh the `vibeflow-grand-prize` branch in VibeFlow. Publish using VibeFlow's live URL after validating ZIP upload, persistence, CSV and mobile behavior.
 
 Independent app; not affiliated with Instagram or Meta.
+
+## Grand Prize UX / demo release
+
+The `vibeflow-grand-prize` edition shows the real analyzer directly below the hero. The primary hero and navigation demo calls-to-action open the **computed** fictional sample rather than an unrelated CSS-only illustrative dashboard. The upload button focuses the actual ZIP form. A three-action demo guide allows a judge to inspect one-way relationships, changes, and CSV export immediately.
+
+The first 12 results are rendered to keep mobile users near history and export controls; **CSV exports are not truncated** by this display limit. Individual-list export and a complete categorized report are both available, and the selected account label is carried into the next import to help prevent cross-account comparisons. No real-time Instagram actions or claimed verified account identities are used.
+
+### Test evidence and limitations
+
+- Automated Node ZIP/math/report tests: `npm test` (8 passing locally when this release was prepared).
+- Offline Chromium DOM smoke suite: `python tests/qa_inline.py` (9 passing locally). **This suite uses a test-only in-memory store and digest shim** due restricted local navigation; it does not verify production IndexedDB persistence or browser SHA-256.
+- `tests/qa_browser.py` is the real HTTP-hosted Chromium end-to-end test for platforms where navigation works; production iPhone Safari and authentic Instagram exports still need manual release QA.
+- VibeFlow deployment must be synced separately; GitHub pushes do not themselves prove the live build has refreshed.
+- Paid replacement scope and a draft SkyCastle submission are in `SUBMISSION.md`.
