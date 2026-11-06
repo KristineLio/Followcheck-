@@ -82,7 +82,7 @@ function renderMetrics() {
     ['Followers', data.followers.length, 'Accounts in your followers export'],
     ['Following', data.following.length, 'Accounts in your following export'],
     ['Mutual circle', data.mutual.length, 'Appear in both lists'],
-    ["Don't follow back", data.notFollowingBack.length, 'Following list minus followers list'],
+    ["Don't follow me back", data.notFollowingBack.length, 'Following list minus followers list'],
     ["I don't follow back", data.iDontFollowBack.length, 'Followers list minus following list'],
     ['Net change', state.previous ? (data.net > 0 ? '+' : '') + data.net : '—', state.previous ? `+${data.gained.length} new · ${data.missing.length} missing` : 'Import a second snapshot to compare'],
   ];
